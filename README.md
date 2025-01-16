@@ -1,5 +1,7 @@
 # Tabitha
 
+![Tabitha](tabitha.png)
+
 Tabitha is a prototype tree-sitter query tool for Rust code. It may eventually extend to other languages. It's primary
 purpose is to facilitate the drawing of `PlantUML` diagrams and also to more generally be a framework for querying 
 across a codebase.
