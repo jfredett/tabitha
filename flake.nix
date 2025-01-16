@@ -27,9 +27,12 @@
                 package = pkgs.ruby_3_4;
               };
 
-              enterShell = ''
-                mkdir -p .parsers
-                rm .parsers/*
+              enterShell = /* bash */ ''
+                if [ -d .parsers ]; then
+                    rm .parsers/*
+                else
+                    mkdir -p .parsers
+                fi
                 ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
                 ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
               '';
