@@ -7,4 +7,9 @@ gemspec
 
 gem "rake", "~> 13.0"
 
-gem "rspec", "~> 3.0"
+group :test do
+  gem 'rspec-its'
+  gem "rspec"
+  gem 'pry'
+  gem 'rspec-spies'
+end

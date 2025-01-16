@@ -2,10 +2,10 @@ class SourceTree
   class << self
     attr_reader :sources
 
-    def load!
+    def load!(path)
       @sources = {}
 
-      Find.find('src') do |path|
+      Find.find(path) do |path|
         Find.prune if File.directory?(path) && File.basename(path).start_with?('.')
         next unless path.end_with? '.rs'
         @sources[path] = Entry.new(path)

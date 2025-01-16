@@ -40,14 +40,14 @@ class Query
     # TODO: Drop support for .scm, just do .rb, and collapse SCM -> Query
     def load!
       @registry ||= {}
-      Find.find('tabitha/queries') do |path|
+      Find.find(Tabitha::QUERY_PATH) do |path|
         Find.prune if File.directory?(path) && File.basename(path).start_with?('.')
         case
         when path.end_with?('.scm')
           scm = SCM.new(path)
           @registry[scm.key] = scm
         when path.end_with?('.rb')
-          require File.join('.', path)
+          require path
           klass_name = Query.key_for(path)
           klass = Query.const_get(klass_name)
           @registry[klass_name] = klass.new(path)

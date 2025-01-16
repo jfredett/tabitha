@@ -46,10 +46,10 @@ class Query
           field_name = match["field.name"].text if match.has_key? "field.name"
           type = match["field.type"].text if match.has_key? "field.type"
 
-          fields[field_name.to_sym] = Field.new(vis, field_name.to_sym, type)
+          fields[field_name.to_sym] = Tabitha::Model::Field.new(vis, field_name.to_sym, type)
         end
 
-        Struct.create!(
+        #Struct.create!(
 
         Type.struct(type_name, location, fields)
       end
