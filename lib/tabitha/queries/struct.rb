@@ -22,23 +22,16 @@ module Tabitha
         QUERY
       end
 
-      def run!
-        results = if @target_code.nil?
-          @target_code.query(self.code)
-        else
-          super
-        end
-
+      def run!(src = nil)
         fields = {}
 
-        results.map do |match|
+        super.map do |match|
           name = match["type"]
 
           # If we're not given a snippet to act on, then the Location must have been provided via `src`.
-          file = self.src if @target_code.nil?
 
           location = Tabitha::Engine::Location.new(
-            file: file,
+            file: src,
             line: name.range.start_point.row,
             column: name.range.start_point.column
           )

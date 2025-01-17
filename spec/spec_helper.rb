@@ -9,6 +9,12 @@ def loc(line, col)
   Tabitha::Engine::Location.new(line: line, column: col)
 end
 
+FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))
+
+def fixture(*path)
+  File.expand_path(File.join(FIXTURES_PATH, *path))
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"

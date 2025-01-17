@@ -3,13 +3,19 @@ module Tabitha
     class Entry
       attr_accessor :path
 
-
       def content
+        return @content unless @content.nil?
         @content ||= SourceTree.parse(File.read(@path))
+      rescue Exception => e
+        binding.pry
       end
 
       def query(code)
         content.query(code)
+      end
+
+      def parse_with(parser)
+        parser.parse!(@path, content)
       end
 
       def self.with_code(code)
@@ -21,8 +27,12 @@ module Tabitha
         case code
         when String
           @content = SourceTree.parse(code)
-        when TreeStand::Node
+        when TreeStand::Node, TreeStand::Tree
           @content = code
+        when NilClass
+          @content = nil
+        else
+          raise ArgumentError, "code must be a String or TreeStand::Node, got #{code.class}"
         end
       end
     end

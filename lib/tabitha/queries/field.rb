@@ -13,13 +13,14 @@ module Tabitha
         QUERY
       end
 
-      def run!
+      def run!(src = nil)
         fields = {}
 
         super.map do |match|
           name = match["field.name"]
 
           location = Tabitha::Engine::Location.new(
+            file: src,
             line: name.range.start_point.row,
             column: name.range.start_point.column
           )

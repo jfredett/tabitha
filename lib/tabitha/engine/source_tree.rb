@@ -7,10 +7,27 @@ module Tabitha
         def load!(path)
           @sources = {}
 
-          Find.find(path) do |path|
-            Find.prune if File.directory?(path) && File.basename(path).start_with?('.')
-            next unless path.end_with? '.rs'
+          if File.directory?(path)
+            Find.find(path) do |path|
+              Find.prune if File.directory?(path) && File.basename(path).start_with?('.')
+              next unless path.end_with? '.rs'
+              @sources[path] = Entry.new(path)
+            end
+          else
             @sources[path] = Entry.new(path)
+          end
+        end
+
+        def parse_with(parser)
+          barrier = Async::Barrier.new
+          Async do
+            @sources.each do |path, entry|
+              barrier.async do
+                entry.parse_with(parser)
+              end
+            end
+
+            barrier.wait
           end
         end
 

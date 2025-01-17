@@ -1,13 +1,9 @@
 module Tabitha
   module Engine
     class Query
-      attr_reader :src, :code
+      attr_reader :code
 
-      def initialize(path)
-        @src = path
-      end
-
-      def run!
+      def run!(src)
         if @target_code.nil?
           SourceTree.query(self.code)
         else
@@ -23,28 +19,23 @@ module Tabitha
           @target_code = SourceTree.parse(code)
         when TreeStand::Node
           @target_code = Entry.with_code(code)
+        when TreeStand::Tree
+          @target_code = Entry.with_code(code)
         else
           raise "Unknown code type #{code.class}"
         end
         self
       end
 
-      def key
-        Tabitha.key_for(@src)
-      end
-
       class << self
-        # Find all the queries in the queries directory, and load them into a registry by name. Queries can be either `.scm`
-        # or .`.rb` files. `.scm` files are assumed to be treesitter queries to be executed on the source tree and return
-        # their matches from the #run! method.
+        # Find all the queries in the queries directory, and load them into a registry by name. Queries can be either
+        # `.scm` or .`.rb` files. `.rb` files are assumed to be ducks of the Query class (you can subclass it to get
+        # most of the behavior for most queries). This will let you implement your own `#run!` method, and you can refer
+        # to other queries by their name in the registry a la `Query[:NameOfQuery].run!`.
         #
-        # `.rb` files are assumed to be ducks of the Query class (you can subclass it to get most of the behavior for most
-        # queries). This will let you implement your own `#run!` method, and you can refer to other queries by their name in
-        # the registry a la `Query[:NameOfQuery].run!`.
-        #
-        # This method loads all these queries into a flat registry, nested directories are allowed, but the namespace is flat,
-        # So you will need to ensure that your queries have unique names across the whole `queries` directory and it's
-        # children.
+        # This method loads all these queries into a flat registry, nested directories are allowed, but the namespace is
+        # flat, So you will need to ensure that your queries have unique names across the whole `queries` directory and
+        # it's children.
         #
         # This loads all the queries underneath the `Query` constant to avoid name collisions.
         def load!
@@ -56,7 +47,7 @@ module Tabitha
             require path
             klass_name = Tabitha::key_for(path)
             klass = Tabitha::Query.const_get(klass_name)
-            @registry[klass_name] = klass.new(path)
+            @registry[klass_name] = klass.new
           end
         end
 

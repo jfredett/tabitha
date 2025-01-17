@@ -3,8 +3,9 @@ module Tabitha
     class Struct
       attr_reader :modifier, :visibility, :name, :fields, :generics, :location
 
-      def self.parse!(source)
-        Tabitha::Engine::Query[:Struct].on(source).run!
+      # TODO: have this take a path location, and use kwargs
+      def self.parse!(path, source)
+        Tabitha::Engine::Query[:Struct].on(source).run!(path)
       end
 
       def self.create!(name: nil, generics: nil, location: nil, body: nil)
