@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
+require 'simplecov'
+require 'simplecov-cobertura'
+require 'rspec/its'
+
 require "tabitha"
 
-require 'rspec/its'
+SimpleCov.start
+
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
 
 # Helper method to create a location
 def loc(line, col)

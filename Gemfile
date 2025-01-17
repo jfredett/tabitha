@@ -9,8 +9,10 @@ gem "rake", "~> 13.0"
 gem "reline"
 
 group :test do
-  gem 'rspec-its'
-  gem "rspec"
-  gem 'pry'
-  gem 'rspec-spies'
+    gem 'rspec-its'
+    gem "rspec"
+    gem 'simplecov', require: false
+    gem 'simplecov-cobertura', require: false
+    gem 'pry'
+    gem 'rspec-spies'
 end

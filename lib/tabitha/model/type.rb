@@ -110,10 +110,10 @@ module Tabitha
       def to_uml
         <<~DIA
         #{self.uml_kind} #{self.name} {
-        .. fields ..
-        #{self.fields.values.map(&:to_uml).join("\n  ")}
-        .. methods ..
-        #{self.api.map { |k, v| v.to_uml }.join("\n  ")} 
+          .. fields ..
+          #{self.fields.values.map(&:to_uml).join("\n  ")}
+          .. methods ..
+          #{self.api.map { |k, v| v.to_uml }.join("\n  ")} 
         }
         DIA
       end
