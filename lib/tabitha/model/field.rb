@@ -1,8 +1,8 @@
 module Tabitha
   module Model
     class Field
-      attr_reader :vis, :name, :type, :location
-      attr_accessor :parent
+      attr_reader :vis, :name, :location
+      attr_accessor :parent, :type
 
       def initialize(parent: nil, vis: nil, name: nil, type: nil, location: nil)
         @parent = parent ; @vis = vis; @name = name; @type = type; @location = location
@@ -20,7 +20,6 @@ module Tabitha
       def ==(other)
         @parent == other.parent && @vis == other.vis && @name == other.name && @type == other.type && @location == other.location
       end
-
     end
   end
 end

@@ -1,3 +1,3 @@
 
-test:
-    bundle exec rake spec
+test *ARGS:
+    bundle exec rspec spec {{ARGS}}

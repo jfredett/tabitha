@@ -26,6 +26,7 @@ module Tabitha
         else
           @fields = Tabitha::Engine::Query[:Field].on(self.body).run!.each do |field|
             field.location.file = @location.file if not @location.file.nil? and field.location.file.nil?
+            field.type = Tabitha::Model::Type.marshall_type(field.type.to_sym)
             field.parent = self
           end
         end

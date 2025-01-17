@@ -5,9 +5,6 @@ RSpec.describe Tabitha::Model::Struct do
     Tabitha::Engine::Query.load!
   end
 
-  # TODO: struct with another struct as a field type
-
-
   describe "Multiple Structs in one parse" do
     before(:all) do
       Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
@@ -67,8 +64,9 @@ RSpec.describe Tabitha::Model::Struct do
     end
 
     subject(:struct) { Tabitha::Model::Struct[:StructWithStruct] }
-    let(:contained_struct) { Tabitha::Model::Struct[:FromFile] }
+    let(:inner) { Tabitha::Model::Struct[:Inner] }
 
+  its(:"fields.first.type") { is_expected.to eq inner }
   end
 
 
@@ -103,7 +101,7 @@ RSpec.describe Tabitha::Model::Struct do
 
       its(:vis) { is_expected.to eq "pub" }
       its(:name) { is_expected.to eq "dummyField" }
-      its(:type) { is_expected.to eq "()" }
+      its(:type) { is_expected.to eq :"()" }
 
       describe "#location" do
         subject { field.location }
@@ -149,8 +147,8 @@ RSpec.describe Tabitha::Model::Struct do
     describe "its fields" do
 
       subject { struct.fields }
-      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: "u32", location: loc(1,12), parent: struct ) }
-      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: "i32", location: loc(2,8), parent: struct ) }
+      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: :u32, location: loc(1,12), parent: struct ) }
+      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: loc(2,8), parent: struct ) }
       let(:expected_fields) { [ field1, field2 ] }
 
       it { is_expected.to eq expected_fields }
@@ -192,8 +190,8 @@ RSpec.describe Tabitha::Model::Struct do
     describe "its fields" do
       subject { struct.fields }
 
-      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: "T", location: loc(1,12), parent: struct ) }
-      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: "i32", location: loc(2,8), parent: struct ) }
+      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: :T, location: loc(1,12), parent: struct ) }
+      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: loc(2,8), parent: struct ) }
 
       let(:expected_fields) { [ field1, field2 ] }
 
