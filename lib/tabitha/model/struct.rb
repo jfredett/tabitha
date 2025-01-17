@@ -1,7 +1,7 @@
 module Tabitha
   module Model
     class Struct
-      attr_reader :modifier, :visibility, :name, :fields, :params, :return_type, :location
+      attr_reader :modifier, :visibility, :name, :fields, :location
 
       def self.parse!(source)
         Tabitha::Engine::Query[:Struct].on(source).run!
@@ -19,8 +19,10 @@ module Tabitha
 
       def fields
         @fields unless @fields.nil?
-
-        @fields = Tabitha::Engine::Query[:Fields].on(@body).run!.map { |result| Field.from_result!(result) }
+        @fields = Tabitha::Engine::Query[:Field].on(@body).run!.each do |field|
+          field.location.file = @location.file
+          field.parent = self
+        end
       end
 
       private

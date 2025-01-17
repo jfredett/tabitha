@@ -18,7 +18,12 @@ module Tabitha
 
       def initialize(path, code = nil)
         @path = path
-        @content = SourceTree.parse(code)
+        case code
+        when String
+          @content = SourceTree.parse(code)
+        when TreeStand::Node
+          @content = code
+        end
       end
     end
   end

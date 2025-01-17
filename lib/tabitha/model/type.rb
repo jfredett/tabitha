@@ -51,10 +51,12 @@ class Type
         mod = match["function.mod"].text if match.has_key?("function.mod")
 
 
-        location = Location.new(
-          result.path,
-          match["function.name"].range.start_point.row,
-          match["function.name"].range.start_point.column
+        file = result.path if result.has_key?("path")
+
+        location = Tabitha::Engine::Location.new(
+          file: file,
+          line: match["function.name"].range.start_point.row,
+          column: match["function.name"].range.start_point.column
         )
 
         api = API.new(

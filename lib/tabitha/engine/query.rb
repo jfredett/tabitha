@@ -11,12 +11,21 @@ module Tabitha
         if @target_code.nil?
           SourceTree.query(self.code)
         else
-          Entry.with_code(@target_code).query(self.code)
+          @target_code.query(self.code)
         end
       end
 
       def on(code)
-        @target_code = code
+        # FIXME: This could be a treenode or text, if it's text we should parse it proactively, if it's a treenode we should
+        # leave it alone, that way everything is always working on treenodes
+        case code
+        when String
+          @target_code = SourceTree.parse(code)
+        when TreeStand::Node
+          @target_code = Entry.with_code(code)
+        else
+          raise "Unknown code type #{code.class}"
+        end
         self
       end
 

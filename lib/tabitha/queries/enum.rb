@@ -38,7 +38,7 @@ module Tabitha
         super.each do |result|
           match = result.matches[0]
           name = match["type"]
-          location = Location.new(
+          location = Tabitha::Engine::Location.new(
             result.path,
             name.range.start_point.row,
             name.range.start_point.column
