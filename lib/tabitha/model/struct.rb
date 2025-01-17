@@ -1,16 +1,16 @@
 module Tabitha
   module Model
     class Struct
-      attr_reader :modifier, :visibility, :name, :fields, :location
+      attr_reader :modifier, :visibility, :name, :fields, :generics, :location
 
       def self.parse!(source)
         Tabitha::Engine::Query[:Struct].on(source).run!
       end
 
-      def self.create!(name, location, body)
+      def self.create!(name: nil, generics: nil, location: nil, body: nil)
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
-        @registry[name.to_sym] = new(name.to_sym, location, body)
+        @registry[name.to_sym] = new(name: name.to_sym, generics: generics, location: location, body: body)
       end
 
       def self.[](name)
@@ -29,8 +29,8 @@ module Tabitha
 
       attr_reader :body
 
-      def initialize(name, location, body)
-        @name = name; @location = location; @body = body
+      def initialize(name: nil, location: nil, generics: nil, body: nil)
+        @name = name; @location = location; @generics = generics; @body = body
       end
     end
   end

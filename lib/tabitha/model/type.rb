@@ -4,6 +4,8 @@ class Type
   attr_accessor :name, :location, :kind, :fields
   attr_reader :api
 
+  # OQ: these should really be a special kind of type ("Standard Type" or something) that can be referenced and are
+  # preloaded or something, but we don't bother to track where we reference them in the sourcetree?
   FILTERED_FIELD_TYPES = %w(u8 u16 u32 u64 i8 i16 i32 i64 isize usize bool str char String () Self)
   
 

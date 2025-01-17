@@ -15,6 +15,7 @@ module Tabitha
           (struct_item
             (visibility_modifier)? @vis
             name: (type_identifier) @type
+            type_parameters: (type_parameters)? @generics
             body: (field_declaration_list)? @body
           )
         ]
@@ -42,10 +43,11 @@ module Tabitha
             column: name.range.start_point.column
           )
           type_name = name.text
+          generics = match["generics"].text if match.has_key?("generics")
 
           body = match["body"]
 
-          Model::Struct.create!(type_name, location, body)
+          Model::Struct.create!(name: type_name, generics: generics, location: location, body: body)
         end
       end
     end
