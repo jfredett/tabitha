@@ -5,8 +5,72 @@ RSpec.describe Tabitha::Model::Struct do
     Tabitha::Engine::Query.load!
   end
 
-  # TODO: struct from a file
   # TODO: struct with another struct as a field type
+
+
+  describe "Multiple Structs in one parse" do
+    before(:all) do
+      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
+      struct Foo {
+        pub field1: u32,
+      };
+
+      struct Bar {
+        field2: i32,
+      };
+      CODE
+    end
+
+    let (:foo) { Tabitha::Model::Struct[:Foo] }
+    let (:bar) { Tabitha::Model::Struct[:Bar] }
+
+    it "has parsed the Foo structure" do
+      expect(foo.name).to eq :Foo
+    end
+
+    it "has parsed the Bar structure" do
+      expect(bar.name).to eq :Bar
+    end
+  end
+
+  describe "Zero Sized Types" do
+    before(:all) do
+      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
+      struct ZST;
+      CODE
+    end
+
+    subject(:struct) { Tabitha::Model::Struct[:ZST] }
+
+    its(:name) { is_expected.to eq :ZST }
+    its(:visibility) { is_expected.to eq nil }
+    its(:modifier) { is_expected.to eq nil }
+    its(:fields) { is_expected.to be_empty }
+    its(:generics) { is_expected.to eq nil }
+    its(:location) { is_expected.to_not have_file }
+    its(:location) { is_expected.to have_line }
+    its(:location) { is_expected.to have_column }
+    its(:"location.line") { is_expected.to eq 0 }
+    its(:"location.column") { is_expected.to eq 7 }
+
+  end
+
+  describe "Struct with Field that is a Struct" do
+    before(:all) do
+      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
+      struct Inner;
+
+      struct StructWithStruct {
+        pub field1: Inner,
+      }
+      CODE
+    end
+
+    subject(:struct) { Tabitha::Model::Struct[:StructWithStruct] }
+    let(:contained_struct) { Tabitha::Model::Struct[:FromFile] }
+
+  end
+
 
 
   describe "FromFile" do

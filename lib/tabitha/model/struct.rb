@@ -18,11 +18,16 @@ module Tabitha
         @registry[name.to_sym] if @registry&.key?(name.to_sym)
       end
 
+
       def fields
         @fields unless @fields.nil?
-        @fields = Tabitha::Engine::Query[:Field].on(@body).run!.each do |field|
-          field.location.file = @location.file
-          field.parent = self
+        if body.nil?
+          @fields = []
+        else
+          @fields = Tabitha::Engine::Query[:Field].on(self.body).run!.each do |field|
+            field.location.file = @location.file if not @location.file.nil? and field.location.file.nil?
+            field.parent = self
+          end
         end
       end
 
