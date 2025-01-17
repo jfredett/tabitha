@@ -1,0 +1,14 @@
+# This is a configuration file for the bacon tool
+#
+# Complete help on configuration: https://dystroy.org/bacon/config/
+# 
+default_job = "spec"
+
+[jobs.spec]
+command = ["bundle", "exec", "rake", "spec"]
+need_stdout = true 
+watch = ["lib/**/*.rb", "spec/**/*.rb"]
+analyzer = "r_spec"
+
+[keybindings]
+s = "job:spec"

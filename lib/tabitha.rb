@@ -20,6 +20,16 @@ module Tabitha
   QUERY_PATH = File.expand_path(File.join(__dir__, "tabitha", "queries"))
 
 
+  def self.key_for(path)
+    snake_case = File.basename(path).gsub('.scm', '').gsub('.rb', '')
+    self.snake_to_camel(snake_case)
+  end
+
+  # "camel_case" -> :CamelCase
+  def self.snake_to_camel(snake_case)
+    snake_case.split('_').map(&:capitalize).join.to_sym
+  end
+
   def self.run!(source_path)
     # TODO: Marshall this and only load if the SHA has changed. -- Make a Marshall class, probably I should name this
     # something, damn it I'm getting attached.
