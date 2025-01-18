@@ -42,7 +42,7 @@ across a codebase.
 tabitha /path/to/source/directory
 ```
 
-will drop you in a repl where you can whatever you like. You probably should just run this from the root of your crate,
+will drop you in a repl where you can whatever do you like. You probably should just run this from the root of your crate,
 a la:
 
 ```shell
@@ -56,6 +56,7 @@ tabitha . --with my_script.rb
 ```
 
 This will bypass the repl and run your script in the `Tabitha` context. Tabitha will index your code, and you can use
+the script to save a particular query/report setup.
 
 ## Contributing
 
