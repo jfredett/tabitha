@@ -18,8 +18,11 @@ end
 require 'simplecov'
 require 'simplecov-cobertura'
 
-SimpleCov.start
-SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+SimpleCov.start do
+  enable_coverage :branch
+  add_filter "/spec/"
+end
+#SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 
 require "tabitha"

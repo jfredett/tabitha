@@ -30,11 +30,18 @@ module Tabitha
     snake_case.split('_').map(&:capitalize).join.to_sym
   end
 
+  # This is called at require-time to load all the queries into the registry. This also
+  # `require`s everything in that directory.
+  def self.init!
+    Engine::Query.load!
+  end
+
+  # Run on a particular source path, creating a source-tree.
+  # TODO: Better name
   def self.run!(source_path)
     # TODO: Marshall this and only load if the SHA has changed. -- Make a Marshall class, probably I should name this
     # something, damn it I'm getting attached.
     SourceTree.load!(source_path)
-    Query.load!
 
     barrier = Async::Barrier.new
     Async do
@@ -98,3 +105,8 @@ module Tabitha
     STDERR.puts "Done!"
   end
 end
+
+
+# OQ: I don't know if eager loading is correct here, but I'm going to leave it for now as laziness is usually harder 
+# to reason about.
+Tabitha.init!
