@@ -22,7 +22,7 @@ SimpleCov.start do
   enable_coverage :branch
   add_filter "/spec/"
 end
-#SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 
 require "tabitha"
