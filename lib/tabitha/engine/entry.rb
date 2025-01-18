@@ -6,8 +6,6 @@ module Tabitha
       def content
         return @content unless @content.nil?
         @content ||= SourceTree.parse(File.read(@path))
-      rescue Exception => e
-        binding.pry
       end
 
       def query(code)

@@ -20,25 +20,18 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ['3.4']
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+    - uses: cachix/install-nix-action@v27
       with:
-        ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true
-
-    - name: Install just
-      uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6
+        nix_path: nixpkgs=channel:nixos-unstable
 
     - name: Run tests
-      run: just test
+      run: |
+        nix run .#ci --impure
 
-    - name:
+    - name: Upload coverage
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

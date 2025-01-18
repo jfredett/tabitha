@@ -1,26 +1,6 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-require 'simplecov-cobertura'
 require 'rspec/its'
-
-require "tabitha"
-
-SimpleCov.start
-
-SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-
-
-# Helper method to create a location
-def loc(line, col)
-  Tabitha::Engine::Location.new(line: line, column: col)
-end
-
-FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))
-
-def fixture(*path)
-  File.expand_path(File.join(FIXTURES_PATH, *path))
-end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -34,3 +14,24 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+require 'simplecov'
+require 'simplecov-cobertura'
+
+SimpleCov.start
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
+
+require "tabitha"
+
+# Helper method to create a location
+def loc(line, col)
+  Tabitha::Engine::Location.new(line: line, column: col)
+end
+
+FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))
+
+def fixture(*path)
+  File.expand_path(File.join(FIXTURES_PATH, *path))
+end
+
