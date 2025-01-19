@@ -28,8 +28,12 @@ SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 require "tabitha"
 
 # Helper method to create a location
-def loc(line, col)
-  Tabitha::Engine::Location.new(line: line, column: col)
+def loc(line, col, file: nil)
+  Tabitha::Engine::Location.new(file: file, line: line, column: col)
+end
+
+def scratch_loc(line, col)
+  loc(line, col, file: fixture("scratch.rs"))
 end
 
 FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))

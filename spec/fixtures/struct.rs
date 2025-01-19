@@ -1,3 +1,0 @@
-struct FromFile {
-    pub dummyField: ()
-}

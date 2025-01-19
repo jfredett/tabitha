@@ -4,6 +4,10 @@ module Tabitha
       class << self
         attr_reader :sources
 
+        def clear!
+          @source = {}
+        end
+
         def load!(path)
           @sources = {}
 

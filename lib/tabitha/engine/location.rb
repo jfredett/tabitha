@@ -20,7 +20,17 @@ module Tabitha
       end
 
       def ==(other)
+        return if other.nil?
         @file == other.file && @line == other.line && @column == other.column
+      end
+
+      def eql?(other)
+        return if other.nil?
+        @file.eql?(other.file) && @line.eql?(other.line) && @column.eql?(other.column)
+      end
+
+      def inspect
+        "#{@file}:#{@line}:#{@column} (#{object_id})"
       end
     end
   end

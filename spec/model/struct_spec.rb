@@ -5,197 +5,256 @@ RSpec.describe Tabitha::Model::Struct do
     Tabitha::Engine::Query.load!
   end
 
-  describe "Multiple Structs in one parse" do
-    before(:all) do
-      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
-      struct Foo {
-        pub field1: u32,
-      };
+  # TODO: Reorganize these and factor out a bunch of the redundant test code into shared examples if possible
+  # TODO: Move these structs to fixtures? Maybe just one big one?
+  #
 
-      struct Bar {
-        field2: i32,
-      };
-      CODE
-    end
+  before(:each) do
+    Tabitha::Engine::SourceTree.clear!
+    Tabitha::Model::Struct.clear!
 
-    let (:foo) { Tabitha::Model::Struct[:Foo] }
-    let (:bar) { Tabitha::Model::Struct[:Bar] }
-
-    it "has parsed the Foo structure" do
-      expect(foo.name).to eq :Foo
-    end
-
-    it "has parsed the Bar structure" do
-      expect(bar.name).to eq :Bar
-    end
+    Tabitha::Engine::SourceTree::load!(fixture('scratch.rs'))
+    Tabitha::Engine::SourceTree::parse_with(Tabitha::Model::Struct)
   end
 
   describe "Zero Sized Types" do
-    before(:all) do
-      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
-      struct ZST;
-      CODE
-    end
-
     subject(:struct) { Tabitha::Model::Struct[:ZST] }
 
     its(:name) { is_expected.to eq :ZST }
-    its(:visibility) { is_expected.to eq nil }
-    its(:modifier) { is_expected.to eq nil }
+    its(:visibility) { is_expected.to be_nil }
     its(:fields) { is_expected.to be_empty }
-    its(:generics) { is_expected.to eq nil }
-    its(:location) { is_expected.to_not have_file }
-    its(:location) { is_expected.to have_line }
-    its(:location) { is_expected.to have_column }
-    its(:"location.line") { is_expected.to eq 0 }
-    its(:"location.column") { is_expected.to eq 7 }
-
+    its(:generics) { is_expected.to be_empty }
   end
 
   describe "Struct with Field that is a Struct" do
-    before(:all) do
-      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
-      struct Inner;
-
-      struct StructWithStruct {
-        pub field1: Inner,
-      }
-      CODE
-    end
-
     subject(:struct) { Tabitha::Model::Struct[:StructWithStruct] }
     let(:inner) { Tabitha::Model::Struct[:Inner] }
 
-  its(:"fields.first.type") { is_expected.to eq inner }
+    its(:"fields.keys.length") { is_expected.to be 1 }
+    describe "the field" do
+      subject { struct.fields[:field1] }
+      its(:type) { is_expected.to eq :Inner }
+    end
   end
 
+  describe "Standard" do
+    subject(:struct) { Tabitha::Model::Struct[:Standard] }
 
+    its(:name) { is_expected.to eq :Standard }
+    its(:visibility) { is_expected.to be_nil }
+    its(:generics) { is_expected.to be_empty }
+    its(:fields) { are_expected.to_not be_empty }
 
-  describe "FromFile" do
+    describe :location do
+      subject { struct.location }
+      it { is_expected.to have_file }
+
+      its(:file) { is_expected.to eq fixture('scratch.rs') }
+      its(:line) { is_expected.to eq 16 }
+      its(:column) { is_expected.to eq 7 }
+    end
+
+    describe "its fields" do
+      subject { struct.fields }
+      let(:field1) { Tabitha::Model::Field.new(visibility: "pub", name: "field1", type: :u32, location: scratch_loc(17,8), parent: struct ) }
+      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: scratch_loc(18,4), parent: struct ) }
+      let(:expected_fields) { { field1: field1, field2: field2 } }
+
+      it { is_expected.to eq expected_fields }
+    end
+  end
+
+  describe "Structs With Generics" do
     before(:all) {
-      Tabitha::Engine::SourceTree::load!(fixture('struct.rs'))
-      Tabitha::Engine::SourceTree::parse_with(Tabitha::Model::Struct)
+      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
+      struct GenericStruct<T> {
+      pub field1: T,
+      field2: i32,
+      }
+      CODE
     }
-    subject(:struct) { Tabitha::Model::Struct[:FromFile] }
+    subject(:struct) { Tabitha::Model::Struct[:GenericStruct] }
 
-    its(:name) { is_expected.to eq :FromFile }
+    its(:name) { is_expected.to eq :GenericStruct }
     its(:visibility) { is_expected.to eq nil }
-    its(:modifier) { is_expected.to eq nil }
 
-    describe "#location" do
+    let(:expected_generics) { { T: Tabitha::Model::Generic.new(name: :T, constraints: {}, location: scratch_loc(24,7), parent: struct) } }
+
+    its(:generics) { is_expected.to eq expected_generics }
+
+    describe "its location" do
       subject { struct.location }
 
       it { is_expected.to have_file }
       it { is_expected.to have_line }
       it { is_expected.to have_column }
-      
-      its(:file) { is_expected.to eq fixture('struct.rs') }
-      its(:line) { is_expected.to eq 0 }
-      its(:column) { is_expected.to eq 7 }
-    end
 
-    describe "#fields" do
-      subject(:field) { struct.fields[0] }
-
-      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "dummyField", type: "()", location: Location::new(file: fixture('struct.rs'), line: 1, column: 8), parent: struct ) }
-
-      its(:vis) { is_expected.to eq "pub" }
-      its(:name) { is_expected.to eq "dummyField" }
-      its(:type) { is_expected.to eq :"()" }
-
-      describe "#location" do
-        subject { field.location }
-
-        it { is_expected.to have_file }
-        it { is_expected.to have_line }
-        it { is_expected.to have_column }
-
-        its(:file) { is_expected.to eq fixture('struct.rs') }
-        its(:line) { is_expected.to eq 1 }
-        its(:column) { is_expected.to eq 8 }
-      end
-
-
-    end
-
-
-  end
-
-  describe "Standard" do
-    before(:all) {
-      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
-      struct Standard {
-        pub field1: u32,
-        field2: i32,
-      }
-      CODE
-    }
-    subject(:struct) { Tabitha::Model::Struct[:Standard] }
-
-    its(:name) { is_expected.to eq :Standard }
-    its(:visibility) { is_expected.to eq nil }
-    its(:modifier) { is_expected.to eq nil }
-
-
-    describe "its location" do
-      subject { Tabitha::Model::Struct[:Standard].location }
-      it { is_expected.to_not have_file }
-      it { is_expected.to have_line }
-      it { is_expected.to have_column }
-    end
-
-    describe "its fields" do
-
-      subject { struct.fields }
-      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: :u32, location: loc(1,12), parent: struct ) }
-      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: loc(2,8), parent: struct ) }
-      let(:expected_fields) { [ field1, field2 ] }
-
-      it { is_expected.to eq expected_fields }
-    end
-  end
-
-  # TODO: struct with multiple generics
-  # TODO: struct with constrained generics
-  # TODO: struct with multiple, independently constrained generics
-  describe "Structs With Generics" do
-    before(:all) {
-      Tabitha::Model::Struct.parse!(nil, <<-CODE.strip)
-      struct Generic<T> {
-        pub field1: T,
-        field2: i32,
-      }
-      CODE
-    }
-    subject(:struct) { Tabitha::Model::Struct[:Generic] }
-
-    its(:name) { is_expected.to eq :Generic }
-    its(:visibility) { is_expected.to eq nil }
-    its(:modifier) { is_expected.to eq nil }
-    # TODO: I'm pretty sure this is the wrong way to handle params for this longterm, but it works for now, I should
-    # evenetually store the whole node and not just the text
-    its(:generics) { is_expected.to eq "<T>" }
-
-    describe "its location" do
-      subject { Tabitha::Model::Struct[:Generic].location }
-
-      it { is_expected.to_not have_file }
-      it { is_expected.to have_line }
-      it { is_expected.to have_column }
-
-      its(:line) { is_expected.to eq 0 }
+      its(:file) { is_expected.to eq fixture('scratch.rs') }
+      its(:line) { is_expected.to eq 24 }
       its(:column) { is_expected.to eq 7 }
     end
 
     describe "its fields" do
       subject { struct.fields }
 
-      let(:field1) { Tabitha::Model::Field.new(vis: "pub", name: "field1", type: :T, location: loc(1,12), parent: struct ) }
-      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: loc(2,8), parent: struct ) }
+      let(:field1) { Tabitha::Model::Field.new(visibility: "pub", name: "field1", type: :T, location: scratch_loc(25, 8), parent: struct ) }
+      let(:field2) { Tabitha::Model::Field.new(name: "field2", type: :i32, location: scratch_loc(26,4), parent: struct ) }
 
-      let(:expected_fields) { [ field1, field2 ] }
+      let(:expected_fields) { { field1: field1, field2: field2 } }
 
       it { is_expected.to eq expected_fields }
     end
   end
+
+  describe "Structs With Multiple Generics" do
+    subject(:struct) { Tabitha::Model::Struct[:MultipleGeneric] }
+
+    its(:name) { is_expected.to eq :MultipleGeneric }
+    its(:visibility) { is_expected.to eq nil }
+    let(:expected_generics) { {
+      T: Tabitha::Model::Generic.new(name: :T, constraints: {}, location: scratch_loc(29,7), parent: struct),
+      U: Tabitha::Model::Generic.new(name: :U, constraints: {}, location: scratch_loc(29,7), parent: struct)
+    } }
+
+    its(:generics) { are_expected.to eq expected_generics }
+  end
+
+
+
+  describe "Constrained Where Generic" do
+    subject(:struct) { Tabitha::Model::Struct[:ConstrainedWhereGeneric] }
+
+    it { is_expected.to_not be_nil }
+
+    # This is the object we ultimately want to see in both the where clause and the generic constraint list
+    let(:expected_constraint_t) {
+      # NOTE: I think Constraint might actually just be 'Trait' here, I probably don't need to do any of the type
+      # resolution, maybe I just punt here?
+      Tabitha::Model::Constraint::new(
+        name: :T,
+        trait: :Copy,
+        generics: [],
+        parent: struct,
+        location: scratch_loc(34, 43)
+      )
+    }
+    let(:expected_generics) { {
+      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(34,7), parent: struct),
+    } }
+
+    its(:generics) { is_expected.to eq expected_generics }
+  end
+
+  describe "Constrained Generic" do
+    subject(:struct) { Tabitha::Model::Struct[:ConstrainedGeneric] }
+    # This is the object we ultimately want to see in both the where clause and the generic constraint list
+    let(:expected_constraint) {
+      Tabitha::Model::Constraint.new(
+        name: :T,
+        trait: Tabitha::Model::Type.marshall_type(:Copy),
+        generics: [],
+        parent: struct,
+        location: scratch_loc(38, 30)
+      )
+    }
+
+    let(:expected_generic) { { T: Tabitha::Model::Generic.new(name: :T, constraints: { Copy: expected_constraint }, location: scratch_loc(38,7), parent: struct) } }
+
+    it { is_expected.to_not be_nil }
+    its(:generics) { is_expected.to eq expected_generic }
+  end
+
+  describe "Multiple Constrained Generic" do
+    subject(:struct) { Tabitha::Model::Struct[:MultipleConstrainedGeneric] }
+
+    let(:expected_constraint_t) {
+      Tabitha::Model::Constraint::new(
+        name: :T,
+        trait: Tabitha::Model::Type.marshall_type(:Copy),
+        generics: [],
+        location: scratch_loc(42,38),
+        parent: struct,
+      )
+    }
+
+    let(:expected_constraint_u) {
+      Tabitha::Model::Constraint::new(
+        name: :U,
+        trait: Tabitha::Model::Type.marshall_type(:Clone),
+        generics: [],
+        location: scratch_loc(42, 48),
+        parent: struct,
+      )
+    }
+
+    let(:expected_generics) { {
+      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(42,7), parent: struct),
+      U: Tabitha::Model::Generic::new(name: :U, constraints: { Clone: expected_constraint_u }, location: scratch_loc(42,7), parent: struct)
+    } }
+
+
+    its(:generics) { is_expected.to eq expected_generics }
+  end
+
+  describe "Multiple Constrained Where Generic" do
+    subject(:struct) { Tabitha::Model::Struct[:MultipleConstrainedWhereGeneric] }
+
+    let(:expected_constraint_t) {
+      Tabitha::Model::Constraint::new(
+        name: :T,
+        trait: Tabitha::Model::Type.marshall_type(:Copy),
+        generics: [],
+        location: scratch_loc(9, 7),
+        parent: struct,
+      )
+    }
+
+    let(:expected_constraint_u) {
+      Tabitha::Model::Constraint::new(
+        name: :U,
+        trait: Tabitha::Model::Type.marshall_type(:Clone),
+        generics: [],
+        location: scratch_loc(10, 7),
+        parent: struct,
+      )
+    }
+
+    let(:expected_generics) { {
+      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(8, 7), parent: struct),
+      U: Tabitha::Model::Generic::new(name: :U, constraints: { Clone: expected_constraint_u }, location: scratch_loc(8, 7), parent: struct)
+    } }
+
+    its(:generics) { is_expected.to eq expected_generics }
+
+    context do
+      subject { struct.generics[:T] }
+      its(:constraints) { is_expected.to eq({ Copy: expected_constraint_t }) }
+    end
+
+  end
+
+  # TODO: Nested Constraint and Nested Where Constraint
+  # describe "Nested Constraint" do
+  #   subject(:struct) { Tabitha::Model::Struct[:NestedConstraint] }
+
+  #   let(:expected_constraint_t) {
+  #     Tabitha::Model::Constraint::new(
+  #       name: :T,
+  #       trait: :Foo,
+  #       # BUG: This may reveal an issue, the nesting there marshall's a generic parameter, which is not ideal. I
+  #       # really want to have type marshalling be local->global, i.e., to start looking for the closest available
+  #       # type. I suppose for now I intend to treat these primarily as text to render into graphs, so not a big issue.
+  #       generics: [ :U ],
+  #       location: scratch_loc(4,28),
+  #       parent: struct,
+  #     )
+  #   }
+
+  #   let(:expected_generics) { {
+  #     T: Tabitha::Model::Generic::new(name: :T, constraints: { T: expected_constraint_t }, location: scratch_loc(4,7), parent: struct),
+  #     U: Tabitha::Model::Generic::new(name: :U, constraints: {}, location: scratch_loc(4,7), parent: struct)
+  #   } }
+
+  #   its(:generics) { binding.pry ; is_expected.to eq expected_generics }
+  # end
 end
