@@ -4,6 +4,7 @@
 
 [![codecov](https://codecov.io/gh/jfredett/tabitha/graph/badge.svg?token=DE2MWYILG9)](https://codecov.io/gh/jfredett/tabitha)
 
+![tokei](https://tokei.rs/b1/github/jfredett/tabitha?category=code)
 
 > [!WARNING]
 > This is a _prototype_, if you use it and complain, you're very silly and I _will_ tease you about it.
