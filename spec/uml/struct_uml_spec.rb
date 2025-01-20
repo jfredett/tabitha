@@ -15,10 +15,10 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
   end
 
   let(:expected_uml_diagram) { <<~UML
-    struct Example {
+    struct Example<T> {
       ./spec/fixtures/uml.rs:8
       .. where ..
-      T : Copy
+      T : Copy + PartialEq
       .. fields ..
       pub pub_field: T
       private_field: Vec<usize>
@@ -32,9 +32,28 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
       pub fn fax_spam(&self, ch: Channel)
     }
 
-    # TODO: Link section, should have subsections for arrow subtypes, e.g., trait bounds, etc.
-    # TODO: Generics should get types built for them scoped to the struct, e.g., `Gen_Example_T` here, then we
-    # pretty-print their names using some directive in PlantUML
+    class Gen_Example_T as T <<G, green>> {
+      ./spec/fixtures/uml.rs:8
+      .. bounds ..
+      Copy
+      PartialEq
+    }
+
+    class Gen_Example_T implements Copy
+    class Gen_Example_T implements PartialEq
+
+    class Example implements Default
+
+    #{"Field Links" if false}
+    Example::pub_field --* Gen_Example_T
+    Example::private_field --* Vec<usize>
+    #{"Method Links -- dotted line = produces, dashed line = consumes" if false}
+    Example::go -[dotted]-|> bool
+    Example::fax -[dashed]-|> Gen_Example_T
+    Example::fax <|-[dashed]- Gen_Example_T
+    Example::fax <|-[dashed]- Channel
+    Example::fax_spam <|-[dashed]- Channel
+    Example::default -[dotted]-> Example<T>
 
 
   UML

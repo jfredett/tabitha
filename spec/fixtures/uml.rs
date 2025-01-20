@@ -5,7 +5,7 @@
  * nonsense _would_ be Certified 100% USDA Prime _Human_ nonsense, not a lick of AI here friends.
  * */
 
-struct Example<T : Copy> {
+struct Example<T : Copy + PartialEq> {
     pub pub_field: T,
     private_field: Vec<usize>
 }
@@ -30,5 +30,14 @@ impl<T> Example<T> where T : Copy {
 impl<T : Copy + Default> Example<T> {
     pub fn fax_spam(&self, ch: Channel) {
         ch.send_facimile(T::default());
+    }
+}
+
+impl<T : Copy + PartialEq + Default> Default for Example<T> {
+    fn default() -> Self {
+        Example {
+            pub_field: T::default(),
+            private_field: vec![]
+        }
     }
 }
