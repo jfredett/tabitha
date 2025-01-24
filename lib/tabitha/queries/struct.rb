@@ -7,6 +7,7 @@ module Tabitha
         (struct_item
             (visibility_modifier)? @struct.visibility
             name: (type_identifier) @struct.name
+          ; TODO: Maybe instead of the below, prefer to take this whole tree and recursively parse it?
             type_parameters: (type_parameters
                                [ (type_identifier) @generic.type
                                  (constrained_type_parameter
@@ -68,7 +69,7 @@ module Tabitha
                 if match.has_key?('generic.bound')
                   bound = match.delete('generic.bound')
                   generic.constraints[bound.text.to_sym] ||= Model::Constraint.new(
-                    name: type,
+                    name: type, # FIXME: I don't think this is necessary? We can get it via the parent.
                     trait: bound.text.to_sym,
                     generics: [], # FIXME: this is wrong.
                     location: Engine::Location::new(
@@ -103,6 +104,8 @@ module Tabitha
                 )
               end
             end
+
+            # FIXME: I need to 'flatten' all the generics in each constraint to the 'top level'
 
             struct.generics = components[:generic]
             struct.fields = components[:field]

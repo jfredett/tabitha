@@ -17,9 +17,7 @@ module Tabitha
         case code
         when String
           @target_code = SourceTree.parse(code)
-        when TreeStand::Node
-          @target_code = Entry.with_code(code)
-        when TreeStand::Tree
+        when TreeStand::Node, TreeStand::Tree
           @target_code = Entry.with_code(code)
         else
           raise "Unknown code type #{code.class}"

@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe "Tabitha::Model::Struct#to_uml" do
-
   before(:all) do
     Tabitha::Engine::Query.load!
   end
@@ -54,8 +53,18 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
     Example::fax <|-[dashed]- Channel
     Example::fax_spam <|-[dashed]- Channel
     Example::default -[dotted]-> Example<T>
-
-
   UML
   }
+
+  subject { Tabitha::Model::Struct[:Example] }
+
+  # it "renders the UML diagram code as expected" do
+  #   expect(subject.to_uml).to eq expected_uml_diagram
+  # end
+
+  # its(:generic_span) { is_expected.to eq "<T>" }
+
+  # it "renders the constraints if you ask" do
+  #   expect(subject.generic_span(with_constraints: true)).to eq "<T : Copy + PartialEq>"
+  # end
 end

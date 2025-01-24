@@ -12,15 +12,21 @@ module Tabitha
         @registry = {}
       end
 
+      def self.[](name)
+        @registry[name.to_sym] if @registry&.key?(name.to_sym)
+      end
+
       def self.create!(name: nil, generics: {}, fields: {}, location: nil)
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
         @registry[name.to_sym] = new(name: name.to_sym, generics: generics, location: location, fields: fields)
       end
 
-      def self.[](name)
-        @registry[name.to_sym] if @registry&.key?(name.to_sym)
+      def initialize(name: nil, location: nil, generics: {}, fields: {})
+        @name = name; @location = location; @generics = generics; @fields = fields
       end
+
+
 
       def to_uml
         # in:
@@ -42,12 +48,6 @@ module Tabitha
         # methods it finds there under another subsection of the diagram.
         #
 
-        # if there are generics, then this should look like `<T, U, V>`, no constraints here.
-        generic_span = "<#{generics.map({ |g| g.name }).join(", ")}>" if self.generics?
-        generic_section = generics.map do |g|
-          bounds = ": #{g.bounds.values.map(&:inspect).join(' + ')}" if g.has_bounds?
-          "#{g.name}#{bounds}"
-        end.join("\n")
         field_section = "" unless self.zst?
         impl_section = "" if false # TODO: Impl...
         link_section = "" if false # TODO: ibid
@@ -55,24 +55,42 @@ module Tabitha
         # TODO: Poor man's ERB
         # vvvvvvvvvvvvvvvvvvvv
         <<~UML
-        struct #{name}#{generic_span} {
-          #{".. where .." if self.generics?}
-          #{generic_section}
-          #{".. fields .." unless self.zst?}
-          #{field_section}
-          #{".. impls .." if false}
-          #{impl_section}
+        struct #{name}#{generic_span(with_constraints: false)} {
+        #{".. where .." if self.generics?}
+        #{generic_span(with_constraints: true)}
+        #{".. fields .." unless self.zst?}
+        #{field_section}
+        #{".. impls .." if false}
+        #{impl_section}
         }
 
+        #{struct_trait_impl_section if false}
+        #{generic_class_section if false}
+        #{generic_trait_impl_section if false}
         #{link_section if false}
         UML
       end
 
-      private
-
-      def initialize(name: nil, location: nil, generics: {}, fields: {})
-        @name = name; @location = location; @generics = generics; @fields = fields
+      def generic_span(with_constraints: false)
+        generics.sort.map { |_, v| v.as_span(with_constraints: with_constraints) }.join(', ') if self.generics?
       end
+
+      def generics?
+        @generics&.any?
+      end
+
+      def constrained?
+        generics? and generics.values.any?(&:constrained?)
+      end
+
+      def generically_constrained?
+        generics? and constrained? and generics.values.any?(&:generic_constraints?)
+      end
+
+      def zst?
+        @fields.empty?
+      end
+
     end
   end
 end

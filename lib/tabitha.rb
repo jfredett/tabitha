@@ -13,6 +13,9 @@ require 'tree_stand'
 require_relative "tabitha/version"
 require_relative 'tabitha/engine'
 require_relative 'tabitha/model'
+#require_relative 'tabitha/uml'
+
+require 'monkey_patches'
 
 module Tabitha
   class Error < StandardError; end
