@@ -4,7 +4,7 @@ RSpec.shared_examples "it renders generics correctly" do |hash|
   subject { Tabitha::Model::Struct[hash[:struct]] }
 
   its(:generic_span) { is_expected.to eq hash[:short] }
-  it { expect(subject.generic_span(with_constraints: true)).to eq hash[:long] }
+  it { expect(subject.generic_span(with_bounds: true)).to eq hash[:long] }
 end
 
 RSpec.describe Tabitha::Model::Generic do

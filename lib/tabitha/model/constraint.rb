@@ -13,7 +13,7 @@ module Tabitha
         @bound == other.bound && @location == other.location && @parent == other.parent
       end
 
-      # As span always shows all it's constraints, if those are generically parameterized, we want to print the whole
+      # As span always shows all it's bounds, if those are generically parameterized, we want to print the whole
       # type.
       def as_span
         bound.to_s

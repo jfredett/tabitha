@@ -64,7 +64,7 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
 
   # its(:generic_span) { is_expected.to eq "<T>" }
 
-  # it "renders the constraints if you ask" do
-  #   expect(subject.generic_span(with_constraints: true)).to eq "<T : Copy + PartialEq>"
+  # it "renders the bounds if you ask" do
+  #   expect(subject.generic_span(with_bounds: true)).to eq "<T : Copy + PartialEq>"
   # end
 end

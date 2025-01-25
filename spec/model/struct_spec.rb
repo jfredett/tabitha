@@ -78,7 +78,7 @@ RSpec.describe Tabitha::Model::Struct do
     its(:name) { is_expected.to eq :GenericStruct }
     its(:visibility) { is_expected.to eq nil }
 
-    let(:expected_generics) { { T: Tabitha::Model::Generic.new(name: :T, constraints: {}, location: scratch_loc(24,7), parent: struct) } }
+    let(:expected_generics) { { T: Tabitha::Model::Generic.new(name: :T, bounds: {}, location: scratch_loc(24,7), parent: struct) } }
 
     its(:generics) { is_expected.to eq expected_generics }
 
@@ -112,8 +112,8 @@ RSpec.describe Tabitha::Model::Struct do
     its(:name) { is_expected.to eq :MultipleGeneric }
     its(:visibility) { is_expected.to eq nil }
     let(:expected_generics) { {
-      T: Tabitha::Model::Generic.new(name: :T, constraints: {}, location: scratch_loc(29,7), parent: struct),
-      U: Tabitha::Model::Generic.new(name: :U, constraints: {}, location: scratch_loc(29,7), parent: struct)
+      T: Tabitha::Model::Generic.new(name: :T, bounds: {}, location: scratch_loc(29,7), parent: struct),
+      U: Tabitha::Model::Generic.new(name: :U, bounds: {}, location: scratch_loc(29,7), parent: struct)
     } }
 
     its(:generics) { are_expected.to eq expected_generics }
@@ -137,7 +137,7 @@ RSpec.describe Tabitha::Model::Struct do
       )
     }
     let(:expected_generics) { {
-      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(34,7), parent: struct),
+      T: Tabitha::Model::Generic::new(name: :T, bounds: { Copy: expected_constraint_t }, location: scratch_loc(34,7), parent: struct),
     } }
 
     its(:generics) { is_expected.to eq expected_generics }
@@ -154,7 +154,7 @@ RSpec.describe Tabitha::Model::Struct do
       )
     }
 
-    let(:expected_generic) { { T: Tabitha::Model::Generic.new(name: :T, constraints: { Copy: expected_constraint }, location: scratch_loc(38,7), parent: struct) } }
+    let(:expected_generic) { { T: Tabitha::Model::Generic.new(name: :T, bounds: { Copy: expected_constraint }, location: scratch_loc(38,7), parent: struct) } }
 
     it { is_expected.to_not be_nil }
     its(:generics) { is_expected.to eq expected_generic }
@@ -180,8 +180,8 @@ RSpec.describe Tabitha::Model::Struct do
     }
 
     let(:expected_generics) { {
-      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(42,7), parent: struct),
-      U: Tabitha::Model::Generic::new(name: :U, constraints: { Clone: expected_constraint_u }, location: scratch_loc(42,7), parent: struct)
+      T: Tabitha::Model::Generic::new(name: :T, bounds: { Copy: expected_constraint_t }, location: scratch_loc(42,7), parent: struct),
+      U: Tabitha::Model::Generic::new(name: :U, bounds: { Clone: expected_constraint_u }, location: scratch_loc(42,7), parent: struct)
     } }
 
 
@@ -208,15 +208,15 @@ RSpec.describe Tabitha::Model::Struct do
     }
 
     let(:expected_generics) { {
-      T: Tabitha::Model::Generic::new(name: :T, constraints: { Copy: expected_constraint_t }, location: scratch_loc(8, 7), parent: struct),
-      U: Tabitha::Model::Generic::new(name: :U, constraints: { Clone: expected_constraint_u }, location: scratch_loc(8, 7), parent: struct)
+      T: Tabitha::Model::Generic::new(name: :T, bounds: { Copy: expected_constraint_t }, location: scratch_loc(8, 7), parent: struct),
+      U: Tabitha::Model::Generic::new(name: :U, bounds: { Clone: expected_constraint_u }, location: scratch_loc(8, 7), parent: struct)
     } }
 
     its(:generics) { is_expected.to eq expected_generics }
 
     context do
       subject { struct.generics[:T] }
-      its(:constraints) { is_expected.to eq({ Copy: expected_constraint_t }) }
+      its(:bounds) { is_expected.to eq({ Copy: expected_constraint_t }) }
     end
 
   end
@@ -239,8 +239,8 @@ RSpec.describe Tabitha::Model::Struct do
   #   }
 
   #   let(:expected_generics) { {
-  #     T: Tabitha::Model::Generic::new(name: :T, constraints: { T: expected_constraint_t }, location: scratch_loc(4,7), parent: struct),
-  #     U: Tabitha::Model::Generic::new(name: :U, constraints: {}, location: scratch_loc(4,7), parent: struct)
+  #     T: Tabitha::Model::Generic::new(name: :T, bounds: { T: expected_constraint_t }, location: scratch_loc(4,7), parent: struct),
+  #     U: Tabitha::Model::Generic::new(name: :U, bounds: {}, location: scratch_loc(4,7), parent: struct)
   #   } }
 
   #   its(:generics) { binding.pry ; is_expected.to eq expected_generics }

@@ -35,8 +35,8 @@ module Tabitha
         #   field_section
         # }
         #
-        # The `generic_section` is a list of constraints, which would fit in a `where` clause or in the struct name as
-        # type constraints, this is going to output all the constrain info in the section, and just leave bare generics
+        # The `generic_section` is a list of bounds, which would fit in a `where` clause or in the struct name as
+        # type bounds, this is going to output all the constrain info in the section, and just leave bare generics
         # in the struct declaration.
         #
         # the `link_section` contains links to other types from the perspective of this type. Since it refers to types
@@ -55,9 +55,9 @@ module Tabitha
         # TODO: Poor man's ERB
         # vvvvvvvvvvvvvvvvvvvv
         <<~UML
-        struct #{name}#{generic_span(with_constraints: false)} {
+        struct #{name}#{generic_span(with_bounds: false)} {
         #{".. where .." if self.generics?}
-        #{generic_span(with_constraints: true)}
+        #{generic_span(with_bounds: true)}
         #{".. fields .." unless self.zst?}
         #{field_section}
         #{".. impls .." if false}
@@ -71,12 +71,12 @@ module Tabitha
         UML
       end
 
-      def generic_span(with_constraints: false)
+      def generic_span(with_bounds: false)
         return unless self.generics?
 
         generics.values
                 .sort_by(&:name)
-                .map { |v| v.as_span(with_constraints: with_constraints) }
+                .map { |v| v.as_span(with_bounds: with_bounds) }
                 .join(', ')
       end
 
@@ -89,7 +89,7 @@ module Tabitha
       end
 
       def generically_constrained?
-        generics? and constrained? and generics.values.any?(&:generic_constraints?)
+        generics? and constrained? and generics.values.any?(&:generic_bounds?)
       end
 
       def zst?

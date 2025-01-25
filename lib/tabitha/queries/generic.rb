@@ -26,10 +26,10 @@ module Tabitha
           )
           generic_name = name.text
 
-          @constraints = []
+          @bounds = []
           if match.has_key?("bounds")
             bounds = match["bounds"]
-            @constraints << Model::Constraint::new(
+            @bounds << Model::Constraint::new(
               name: generic_name,
               trait: bounds.text.to_sym,
               location: Engine::Location.new(file: src, line: bounds.range.start_point.row, column: bounds.range.start_point.column),

@@ -7,11 +7,9 @@ module Tabitha
         (struct_item
             (visibility_modifier)? @struct.visibility
             name: (type_identifier) @struct.name
-          ; TODO: Maybe instead of the below, prefer to take this whole tree and recursively parse it?
             type_parameters: (type_parameters
                                [ (type_identifier) @generic.type
                                  (constrained_type_parameter
-                  ; TODO: Extend this to capture generics inside of the constraints. At least 1 layer deep.
                                     left: (type_identifier) @generic.type
                                     bounds: (trait_bounds (_) @generic.bound))])?
             (where_clause
@@ -64,7 +62,7 @@ module Tabitha
                 # TODO: Push this into Constraint?
                 if match.has_key?('generic.bound')
                   bound = match.delete('generic.bound')
-                  generic.constraints[bound.text.to_sym] ||= Model::Constraint.new(
+                  generic.bounds[bound.text.to_sym] ||= Model::Constraint.new(
                     bound: bound.text.to_sym,
                     location: Engine::Location::from(src: src, node: bound),
                     parent: generic
@@ -90,7 +88,7 @@ module Tabitha
               end
             end
 
-            # FIXME: I need to 'flatten' all the generics in each constraint to the 'top level'
+            # FIXME: I need to 'flatten' all the generics in each bound to the 'top level'
 
             struct.generics = components[:generic]
             struct.fields = components[:field]
