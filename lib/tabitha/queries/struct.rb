@@ -16,8 +16,8 @@ module Tabitha
                                     bounds: (trait_bounds (_) @generic.bound))])?
             (where_clause
               (where_predicate
-                (type_identifier) @generic.type
-                (trait_bounds (type_identifier) @generic.bound))
+                left: [(type_identifier) (generic_type)] @generic.type
+                bounds: (trait_bounds (_) @generic.bound))
               )?
             body: (field_declaration_list
                     (field_declaration
@@ -39,13 +39,9 @@ module Tabitha
         results.group_by do |result|
           result['struct.name'].text.to_sym
         end.map do |name, matches|
-            # TODO: write something that wraps the `match` object and does some of the checking for us. Also can capture
-            # file location transparently that way.
-            location = Engine::Location::new(
-              file: src,
-              # This is wrong, but I'm not threading source tracking through for this just yet.
-              line: matches[0]['struct.name'].range.start_point.row,
-              column: matches[0]['struct.name'].range.start_point.column,
+            location = Engine::Location::from(
+              src: src,
+              node: matches[0]['struct.name'] # FIXME: pretty sure this is wrong
             )
 
             # TODO: Build the struct instead of the hash
@@ -69,15 +65,8 @@ module Tabitha
                 if match.has_key?('generic.bound')
                   bound = match.delete('generic.bound')
                   generic.constraints[bound.text.to_sym] ||= Model::Constraint.new(
-                    name: type, # FIXME: I don't think this is necessary? We can get it via the parent.
-                    trait: bound.text.to_sym,
-                    generics: [], # FIXME: this is wrong.
-                    location: Engine::Location::new(
-                      file: src,
-                      line: bound.range.start_point.row,
-                      column: bound.range.start_point.column
-                    ),
-                    # OQ: Not sure this is right, might should be struct
+                    bound: bound.text.to_sym,
+                    location: Engine::Location::from(src: src, node: bound),
                     parent: generic
                   )
                 end
@@ -95,11 +84,7 @@ module Tabitha
                   name: name,
                   type: type,
                   visibility: vis,
-                  location: Engine::Location::new(
-                    file: src,
-                    line: name_node.range.start_point.row,
-                    column: name_node.range.start_point.column
-                  ),
+                  location: Engine::Location::from(src: src, node: name_node),
                   parent: struct
                 )
               end

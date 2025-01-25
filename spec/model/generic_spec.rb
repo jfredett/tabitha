@@ -28,6 +28,7 @@ RSpec.describe Tabitha::Model::Generic do
   it_behaves_like "it renders generics correctly", { struct: :Standard, short: nil, long: nil }
   it_behaves_like "it renders generics correctly", { struct: :ZST, short: nil, long: nil }
   it_behaves_like "it renders generics correctly", { struct: :WeirdEmpty, short: nil, long: nil }
+  it_behaves_like "it renders generics correctly", { struct: :StructWithStruct, short: nil, long: nil }
 
   it_behaves_like "it renders generics correctly", { struct: :GenericStruct, short: "T", long: "T" }
   it_behaves_like "it renders generics correctly", { struct: :MultipleGeneric, short: "T, U", long: "T, U" }
@@ -35,5 +36,9 @@ RSpec.describe Tabitha::Model::Generic do
   it_behaves_like "it renders generics correctly", { struct: :MultipleConstrainedGeneric, short: "T, U", long: "T : Copy, U : Clone" }
   it_behaves_like "it renders generics correctly", { struct: :MultiplyConstrainedSingleGeneric, short: "T", long: "T : Copy + Clone" }
   it_behaves_like "it renders generics correctly", { struct: :NestedConstraint, short: "T, U", long: "T : Foo<U>, U" }
+  # FIXME: Failing case, likely because where parsing is busted? Good time to refactor to inner generic
+  it_behaves_like "it renders generics correctly", { struct: :NestedConstraintWhere, short: "T, U"  , long: "T : Foo<U>, U : Bar" }
+  it_behaves_like "it renders generics correctly", { struct: :MultipleConstrainedWhereGeneric, short: "T, U", long: "T : Copy, U : Clone" }
+  it_behaves_like "it renders generics correctly", { struct: :ConstrainedWhereGeneric, short: "T", long: "T : Copy" }
 
 end

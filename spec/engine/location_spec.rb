@@ -1,6 +1,14 @@
 require 'spec_helper'
 
 RSpec.describe Tabitha::Engine::Location do
+  describe "creation by node" do
+    let(:dummy_node) { double(range: double(start_point: double(row: 1, column: 1))) }
+    subject { described_class.from(src: "file", node: dummy_node) }
+
+    let(:expected) { described_class.new(file: "file", line: 1, column: 1) }
+
+    it { is_expected.to eq expected }
+  end
 
   describe "fully specified" do
     subject { described_class.new(file: "file", line: 1, column: 1) }

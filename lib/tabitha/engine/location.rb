@@ -7,6 +7,10 @@ module Tabitha
         @file = file; @line = line; @column = column
       end
 
+      def self.from(src: nil, node: nil)
+        new(file: src, line: node.range.start_point.row, column: node.range.start_point.column)
+      end
+
       def has_file?
         !@file.nil?
       end

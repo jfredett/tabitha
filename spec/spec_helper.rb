@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec/its'
+require 'super_diff/rspec'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

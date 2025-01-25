@@ -72,7 +72,12 @@ module Tabitha
       end
 
       def generic_span(with_constraints: false)
-        generics.sort.map { |_, v| v.as_span(with_constraints: with_constraints) }.join(', ') if self.generics?
+        return unless self.generics?
+
+        generics.values
+                .sort_by(&:name)
+                .map { |v| v.as_span(with_constraints: with_constraints) }
+                .join(', ')
       end
 
       def generics?

@@ -16,3 +16,5 @@ group :test do
     gem 'pry'
     gem 'rspec-spies'
 end
+
+gem "super_diff", "~> 0.15.0"

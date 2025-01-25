@@ -131,10 +131,8 @@ RSpec.describe Tabitha::Model::Struct do
       # NOTE: I think Constraint might actually just be 'Trait' here, I probably don't need to do any of the type
       # resolution, maybe I just punt here?
       Tabitha::Model::Constraint::new(
-        name: :T,
-        trait: :Copy,
-        generics: [],
-        parent: struct,
+        bound: :Copy,
+        parent: struct.generics[:T],
         location: scratch_loc(34, 43)
       )
     }
@@ -150,10 +148,8 @@ RSpec.describe Tabitha::Model::Struct do
     # This is the object we ultimately want to see in both the where clause and the generic constraint list
     let(:expected_constraint) {
       Tabitha::Model::Constraint.new(
-        name: :T,
-        trait: Tabitha::Model::Type.marshall_type(:Copy),
-        generics: [],
-        parent: struct,
+        bound: Tabitha::Model::Type.marshall_type(:Copy),
+        parent: struct.generics[:T],
         location: scratch_loc(38, 30)
       )
     }
@@ -169,21 +165,17 @@ RSpec.describe Tabitha::Model::Struct do
 
     let(:expected_constraint_t) {
       Tabitha::Model::Constraint::new(
-        name: :T,
-        trait: Tabitha::Model::Type.marshall_type(:Copy),
-        generics: [],
+        bound: Tabitha::Model::Type.marshall_type(:Copy),
         location: scratch_loc(42,38),
-        parent: struct,
+        parent: struct.generics[:T],
       )
     }
 
     let(:expected_constraint_u) {
       Tabitha::Model::Constraint::new(
-        name: :U,
-        trait: Tabitha::Model::Type.marshall_type(:Clone),
-        generics: [],
+        bound: Tabitha::Model::Type.marshall_type(:Clone),
         location: scratch_loc(42, 48),
-        parent: struct,
+        parent: struct.generics[:U],
       )
     }
 
@@ -201,21 +193,17 @@ RSpec.describe Tabitha::Model::Struct do
 
     let(:expected_constraint_t) {
       Tabitha::Model::Constraint::new(
-        name: :T,
-        trait: Tabitha::Model::Type.marshall_type(:Copy),
-        generics: [],
+        bound: Tabitha::Model::Type.marshall_type(:Copy),
         location: scratch_loc(9, 7),
-        parent: struct,
+        parent: struct.generics[:T],
       )
     }
 
     let(:expected_constraint_u) {
       Tabitha::Model::Constraint::new(
-        name: :U,
-        trait: Tabitha::Model::Type.marshall_type(:Clone),
-        generics: [],
+        bound: Tabitha::Model::Type.marshall_type(:Clone),
         location: scratch_loc(10, 7),
-        parent: struct,
+        parent: struct.generics[:U],
       )
     }
 
@@ -240,7 +228,7 @@ RSpec.describe Tabitha::Model::Struct do
   #   let(:expected_constraint_t) {
   #     Tabitha::Model::Constraint::new(
   #       name: :T,
-  #       trait: :Foo,
+  #       bound: :Foo,
   #       # BUG: This may reveal an issue, the nesting there marshall's a generic parameter, which is not ideal. I
   #       # really want to have type marshalling be local->global, i.e., to start looking for the closest available
   #       # type. I suppose for now I intend to treat these primarily as text to render into graphs, so not a big issue.

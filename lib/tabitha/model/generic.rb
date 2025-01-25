@@ -3,6 +3,7 @@ module Tabitha
     class Generic
       attr_accessor :name, :constraints, :location, :parent
 
+      # TODO: Rename constraints -> bounds for parity w/ treesitter
       def initialize(name: nil, constraints: {}, location: nil, parent: nil)
         @name = name; @constraints = constraints; @location = location; @parent = parent
       end
@@ -30,7 +31,8 @@ module Tabitha
         @constraints&.any?
       end
 
-      def bound 
+      # The sum of all bounds applied to this type
+      def bound
         @constraints.values.sort_by(&:name).map(&:as_span).join(" + ")
       end
 
