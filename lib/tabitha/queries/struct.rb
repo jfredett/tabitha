@@ -4,7 +4,7 @@ module Tabitha
     class Struct < Tabitha::Engine::Query
       def code
         <<~QUERY.strip
-        (struct_item
+          (struct_item
             (visibility_modifier)? @struct.visibility
             name: (type_identifier) @struct.name
             type_parameters: (type_parameters
@@ -15,14 +15,13 @@ module Tabitha
             (where_clause
               (where_predicate
                 left: [(type_identifier) (generic_type)] @generic.type
-                bounds: (trait_bounds (_) @generic.bound))
-              )?
+                bounds: (trait_bounds (_) @generic.bound)))?
             body: (field_declaration_list
                     (field_declaration
                       (visibility_modifier)? @field.visibility
                       name: (field_identifier) @field.name
                       type: (_) @field.type))?
-            )
+          )
         QUERY
       end
 
@@ -39,10 +38,11 @@ module Tabitha
         end.map do |name, matches|
             location = Engine::Location::from(
               src: src,
-              node: matches[0]['struct.name'] # FIXME: pretty sure this is wrong
+              node: matches[0]['struct.name']
             )
 
             # TODO: Build the struct instead of the hash
+            # TODO: Pretty sure this can be built outside the loop, harmless here though I think.
             struct_vis = matches[0]['struct.visibility'].text.to_sym if matches[0].has_key?('struct.visibility')
             struct = Model::Struct[name] || Model::Struct.create!(visibility: struct_vis, name: name, location: location)
 
@@ -86,8 +86,6 @@ module Tabitha
                 )
               end
             end
-
-            # FIXME: I need to 'flatten' all the generics in each bound to the 'top level'
 
             struct.generics = components[:generic]
             struct.fields = components[:field]

@@ -38,6 +38,18 @@ module Tabitha
         @file.eql?(other.file) && @line.eql?(other.line) && @column.eql?(other.column)
       end
 
+      # Finds the nearest .git directory, then returns the relative path to the @file
+      # from that directory.
+      def relative_file
+        git_dir = Pathname.new(@file).ascend.find { |p| p.join('.git').directory? }
+        return @file unless git_dir
+        Pathname.new(@file).relative_path_from(git_dir)
+      end
+
+      def to_uml
+        "#{relative_file}:#{@line}"
+      end
+
       alias to_s inspect
       def inspect
         "#{@file}:#{@line}:#{@column} (#{object_id})"

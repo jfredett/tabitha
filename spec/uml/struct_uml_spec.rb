@@ -15,18 +15,18 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
 
   let(:expected_uml_diagram) { <<~UML
     struct Example<T> {
-      ./spec/fixtures/uml.rs:8
+      ./main/spec/fixtures/uml.rs:7
       .. where ..
       T : Copy + PartialEq
       .. fields ..
-      pub pub_field: T
-      private_field: Vec<usize>
+      pub pub_field : T
+      private_field : Vec<usize>
       .. impls ..
       === Example<String> (./spec/fixtures/uml.rs:13) ===
       pub fn go(&self) -> bool
       fn stop(&mut self)
       === Example<T : Copy> (./spec/fixtures/uml.rs:24) ===
-      pub fn fax(&self, message: &T, ch: Channel)
+      pub fn fax(&self, message: &T, ch: Channel
       === Example<T : Copy : Default> (./spec/fixtures/uml.rs:30) ===
       pub fn fax_spam(&self, ch: Channel)
     }
@@ -58,13 +58,15 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
 
   subject { Tabitha::Model::Struct[:Example] }
 
+  # WIP
   # it "renders the UML diagram code as expected" do
   #   expect(subject.to_uml).to eq expected_uml_diagram
   # end
 
-  # its(:generic_span) { is_expected.to eq "<T>" }
+  its(:generic_span) { is_expected.to eq "T" }
+  it { expect(subject.generic_span(with_bounds: true)).to eq "T : Copy + PartialEq" }
 
-  # it "renders the bounds if you ask" do
-  #   expect(subject.generic_span(with_bounds: true)).to eq "<T : Copy + PartialEq>"
-  # end
+  # NOTE: First 2-space indent is covered by the #to_uml method later
+  its(:field_span) { is_expected.to eq "pub pub_field : T\n  private_field : Vec<usize>" }
+  
 end

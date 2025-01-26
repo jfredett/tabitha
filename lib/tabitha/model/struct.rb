@@ -30,8 +30,6 @@ module Tabitha
         [@visibility, @name, @location, @generics, @fields].hash
       end
 
-
-
       def to_uml
         # in:
         #
@@ -52,20 +50,20 @@ module Tabitha
         # methods it finds there under another subsection of the diagram.
         #
 
-        field_section = "" unless self.zst?
         impl_section = "" if false # TODO: Impl...
         link_section = "" if false # TODO: ibid
 
         # TODO: Poor man's ERB
         # vvvvvvvvvvvvvvvvvvvv
         <<~UML
-        struct #{name}#{generic_span(with_bounds: false)} {
-        #{".. where .." if self.generics?}
-        #{generic_span(with_bounds: true)}
-        #{".. fields .." unless self.zst?}
-        #{field_section}
-        #{".. impls .." if false}
-        #{impl_section}
+        struct #{name}<#{generic_span(with_bounds: false)}> {
+          ./#{location.to_uml}
+          #{".. where .." if self.generics?}
+          #{generic_span(with_bounds: true)}
+          #{".. fields .." unless self.zst?}
+          #{field_span}
+          #{".. impls .." if false}
+          #{impl_section}
         }
 
         #{struct_trait_impl_section if false}
@@ -82,6 +80,10 @@ module Tabitha
                 .sort_by(&:name)
                 .map { |v| v.as_span(with_bounds: with_bounds) }
                 .join(', ')
+      end
+
+      def field_span
+        @fields.values.map { |f| f.to_uml }.join("\n  ") unless self.zst?
       end
 
       def generics?
