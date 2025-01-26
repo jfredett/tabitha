@@ -43,7 +43,8 @@ module Tabitha
             )
 
             # TODO: Build the struct instead of the hash
-            struct = Model::Struct[name] || Model::Struct.create!(name: name, location: location)
+            struct_vis = matches[0]['struct.visibility'].text.to_sym if matches[0].has_key?('struct.visibility')
+            struct = Model::Struct[name] || Model::Struct.create!(visibility: struct_vis, name: name, location: location)
 
             components = Hash.new { |h, k| h[k] = {} }
             matches.map do |match|
@@ -57,15 +58,14 @@ module Tabitha
               if match.has_key?('generic.type')
                 type = match.delete('generic.type').text.to_sym
 
-                generic = components[:generic][type] || Model::Generic::new(name: type, location: location, parent: struct)
+                generic = components[:generic][type] || Model::Generic::new(name: type, location: location)
 
-                # TODO: Push this into Constraint?
                 if match.has_key?('generic.bound')
-                  bound = match.delete('generic.bound')
-                  generic.bounds[bound.text.to_sym] ||= Model::Constraint.new(
-                    bound: bound.text.to_sym,
-                    location: Engine::Location::from(src: src, node: bound),
-                    parent: generic
+                  node = match['generic.bound']
+                  generic.bounds << Model::Bound.from(
+                    node: node,
+                    # TODO: can I recover src from node? If so, can drop this org.
+                    src: src,
                   )
                 end
                 components[:generic][type] = generic
@@ -83,7 +83,6 @@ module Tabitha
                   type: type,
                   visibility: vis,
                   location: Engine::Location::from(src: src, node: name_node),
-                  parent: struct
                 )
               end
             end

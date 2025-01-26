@@ -1,9 +1,9 @@
 # TODO: Turn this to a 'fn' class, it is part of an `impl` class.
 class API
-  attr_reader :parent, :location, :trait, :name, :params, :return_type
+  attr_reader :location, :trait, :name, :params, :return_type
 
-  def initialize(parent, location, name, params, return_type, trait, mod, vis)
-    @parent = parent; @location = location; @name = name;
+  def initialize(location, name, params, return_type, trait, mod, vis)
+    @location = location; @name = name;
     @params = params; @return_type = return_type; @trait = trait
     @mod = mod; @vis = vis
   end

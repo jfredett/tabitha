@@ -1,11 +1,11 @@
 module Tabitha
   module Model
     class Generic
-      attr_accessor :name, :bounds, :location, :parent
+      attr_accessor :name, :bounds, :location
 
       # TODO: constraints should be a set
-      def initialize(name: nil, bounds: {}, location: nil, parent: nil)
-        @name = name; @bounds = bounds; @location = location; @parent = parent
+      def initialize(name: nil, bounds: Set.new, location: nil)
+        @name = name; @bounds = bounds; @location = location
       end
 
       def as_span(with_bounds: false)
@@ -17,7 +17,15 @@ module Tabitha
       end
 
       def ==(other)
-        @name.to_sym == other.name.to_sym && @bounds == other.bounds && @location == other.location && @parent == other.parent
+        @name.to_sym == other.name.to_sym && @bounds == other.bounds && @location == other.location
+      end
+
+      def hash
+        [ @name, @bounds, @location, ].hash
+      end
+
+      def eql?(other)
+        @name.eql?(other.name) && @bounds.eql?(other.bounds) && @location.eql?(other.location)
       end
 
       FILTERED_FIELD_TYPES = %w(u8 u16 u32 u64 i8 i16 i32 i64 isize usize bool str char String () Self)
@@ -33,7 +41,7 @@ module Tabitha
 
       # The sum of all bounds applied to this type
       def bound
-        @bounds.values.sort_by(&:name).map(&:as_span).join(" + ")
+        @bounds.map(&:as_span).join(" + ")
       end
 
       # NOTE: I'm only going one layer deep until I find a reason to go deeper. This begs for some general recursive

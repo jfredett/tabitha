@@ -1,7 +1,7 @@
 module Tabitha
   module Model
     class Struct
-      attr_accessor :visibility, :name, :fields, :location, :fields, :generics
+      attr_accessor :visibility, :name, :fields, :location, :generics
 
       # TODO: have this take a path location, and use kwargs
       def self.parse!(path, source)
@@ -16,14 +16,18 @@ module Tabitha
         @registry[name.to_sym] if @registry&.key?(name.to_sym)
       end
 
-      def self.create!(name: nil, generics: {}, fields: {}, location: nil)
+      def self.create!(visibility: nil, name: nil, generics: {}, fields: {}, location: nil)
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
-        @registry[name.to_sym] = new(name: name.to_sym, generics: generics, location: location, fields: fields)
+        @registry[name.to_sym] = new(visibility: visibility, name: name.to_sym, generics: generics, location: location, fields: fields)
       end
 
-      def initialize(name: nil, location: nil, generics: {}, fields: {})
-        @name = name; @location = location; @generics = generics; @fields = fields
+      def initialize(visibility: nil, name: nil, location: nil, generics: {}, fields: {})
+        @visibility = visibility; @name = name; @location = location; @generics = generics; @fields = fields
+      end
+
+      def hash
+        [@visibility, @name, @location, @generics, @fields].hash
       end
 
 

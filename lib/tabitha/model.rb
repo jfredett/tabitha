@@ -1,6 +1,6 @@
 require_relative 'model/api'
+require_relative 'model/bound'
 require_relative 'model/enum'
-require_relative 'model/constraint'
 require_relative 'model/field'
 require_relative 'model/generic'
 require_relative 'model/impl'

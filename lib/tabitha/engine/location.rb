@@ -7,6 +7,7 @@ module Tabitha
         @file = file; @line = line; @column = column
       end
 
+      # TODO: intern these. Later we can cache invalidate using weakrefs.
       def self.from(src: nil, node: nil)
         new(file: src, line: node.range.start_point.row, column: node.range.start_point.column)
       end
@@ -23,6 +24,10 @@ module Tabitha
         !@column.nil?
       end
 
+      def hash
+        [@file, @line, @column].hash
+      end
+
       def ==(other)
         return if other.nil?
         @file == other.file && @line == other.line && @column == other.column
@@ -33,6 +38,7 @@ module Tabitha
         @file.eql?(other.file) && @line.eql?(other.line) && @column.eql?(other.column)
       end
 
+      alias to_s inspect
       def inspect
         "#{@file}:#{@line}:#{@column} (#{object_id})"
       end
