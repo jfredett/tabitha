@@ -21,7 +21,7 @@ RSpec.describe Tabitha::Model::Generic do
     Tabitha::Engine::SourceTree.clear!
     Tabitha::Model::Struct.clear!
 
-    Tabitha::Engine::SourceTree::load!(fixture('scratch.rs'))
+    Tabitha::Engine::SourceTree::load!(fixture('struct.rs'))
     Tabitha::Engine::SourceTree::parse_with(Tabitha::Model::Struct)
   end
 

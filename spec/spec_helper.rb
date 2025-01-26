@@ -34,7 +34,7 @@ def loc(line, col, file: nil)
 end
 
 def scratch_loc(line, col)
-  loc(line, col, file: fixture("scratch.rs"))
+  loc(line, col, file: fixture("struct.rs"))
 end
 
 FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))

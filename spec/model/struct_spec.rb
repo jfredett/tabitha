@@ -14,7 +14,7 @@ RSpec.shared_examples "it captures the struct's definition" do |hash|
     it { is_expected.to have_line }
     it { is_expected.to have_column }
 
-    its(:file) { is_expected.to eq fixture('scratch.rs') }
+    its(:file) { is_expected.to eq fixture('struct.rs') }
     its(:line) { is_expected.to eq hash[:location][:line] }
     its(:column) { is_expected.to eq hash[:location][:column] }
   end
@@ -43,7 +43,7 @@ RSpec.describe Tabitha::Model::Struct do
     Tabitha::Engine::SourceTree.clear!
     Tabitha::Model::Struct.clear!
 
-    Tabitha::Engine::SourceTree::load!(fixture('scratch.rs'))
+    Tabitha::Engine::SourceTree::load!(fixture('struct.rs'))
     Tabitha::Engine::SourceTree::parse_with(Tabitha::Model::Struct)
   end
 
