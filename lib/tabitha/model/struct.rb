@@ -26,6 +26,10 @@ module Tabitha
         @visibility = visibility; @name = name; @location = location; @generics = generics; @fields = fields
       end
 
+      def impls
+        Tabitha::Model::Impl.where { |e| e.struct == self }
+      end
+
       def hash
         [@visibility, @name, @location, @generics, @fields].hash
       end

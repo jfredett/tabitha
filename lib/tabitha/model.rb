@@ -1,4 +1,5 @@
-require_relative 'model/api'
+require_relative 'model/fn'
+require_relative 'model/const'
 require_relative 'model/bound'
 require_relative 'model/enum'
 require_relative 'model/field'

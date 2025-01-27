@@ -55,3 +55,9 @@ struct Inner;
 struct StructWithStruct {
     pub field1: Inner,
 }
+
+impl Standard {
+    fn method4(&self) {
+        // this method is here so we can make sure we catch `impls` even amongst other files.
+    }
+}
