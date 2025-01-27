@@ -4,7 +4,7 @@ impl Standard {
     pub fn method1(&self) -> Vec<usize> {
     }
 
-    pub fn generic_method<T>(&self, t: T) -> T {
+    pub async fn generic_method<T>(&self, t: T) -> T {
         t
     }
 }
@@ -12,7 +12,7 @@ impl Standard {
 impl MultipleBoundedGeneric<T, U> where T : Copy, U : Clone {
     const TCONST: Option<T> = None;
 
-    fn method1(&self, t: T, u: U) -> (T, U) {
+    async fn method1(&self, t: T, u: U) -> (T, U) {
         (t, u)
     }
 

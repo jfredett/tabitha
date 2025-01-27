@@ -6,26 +6,35 @@ module Tabitha
       def code
         <<~QUERY
         (impl_item
-          type_parameters: (type_parameters
-            (constrained_type_parameter
-              left: (_) @impl.type_params.type
-              bounds: (trait_bounds (_) @impl.type_params.bounds))
-            )?
-          trait: (_)? @impl.trait
-          type: [
-            (type_identifier) @impl.type
-            (generic_type
-              type: (_) @impl.type
-              type_arguments: (type_arguments (_) @impl.type_params.type))
-          ]
-          (where_clause
-            (where_predicate
-              left: (_) @impl.type_params.type
-              bounds: (trait_bounds (_) @impl.type_params.bounds)))?
-          body: (declaration_list [
-            (const_item) @impl.body.const
-            (function_item) @impl.body.fn
-          ]))
+            type_parameters: (type_parameters
+                    (constrained_type_parameter
+                      left: (_) @impl.type_params.type
+                      bounds: (trait_bounds (_) @impl.type_params.bounds))
+                )?
+            trait: (_)? @impl.trait
+            type: [
+               (type_identifier) @impl.type
+               (generic_type
+                 type: (_) @impl.type
+                 type_arguments: (type_arguments (_) @impl.type_params.type))
+            ]
+            (where_clause
+               (where_predicate
+                 left: (_) @impl.type_params.type
+                 bounds: (trait_bounds (_) @impl.type_params.bounds)))?
+            body: (declaration_list [
+              (const_item
+                name: (identifier) @impl.const.name
+                type: (type_identifier) @impl.const.type
+                value: (_) @impl.const.value)
+
+              (function_item
+                (visibility_modifier)? @impl.fn.vis
+                (function_modifiers)? @impl.fn.mods
+                name: (identifier) @impl.fn.name
+                (parameters) @impl.fn.params
+                return_type: (type_identifier) @impl.fn.return_type)
+              ]))
         QUERY
       end
       # def code(type_name)
