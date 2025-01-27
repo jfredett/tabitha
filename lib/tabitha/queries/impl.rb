@@ -85,8 +85,6 @@ module Tabitha
 
       def run!(src = nil)
         results = super(src)
-
-        binding.pry
       end
     end
   end
