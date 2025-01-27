@@ -30,16 +30,18 @@ module Tabitha
         results = super
 
 
-        struct_name = results[0]['struct.name']
-        name = struct_name.text.to_sym
 
         results.group_by do |result|
           result['struct.name'].text.to_sym
         end.map do |name, matches|
+            struct_node = matches[0]['struct.name']
+            name = struct_node.text.to_sym
+
             location = Engine::Location::from(
               src: src,
-              node: matches[0]['struct.name']
+              node: struct_node
             )
+
 
             # TODO: Build the struct instead of the hash
             # TODO: Pretty sure this can be built outside the loop, harmless here though I think.

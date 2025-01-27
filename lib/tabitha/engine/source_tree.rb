@@ -9,7 +9,7 @@ module Tabitha
         end
 
         def load!(path)
-          @sources = {}
+          @sources ||= {}
 
           if File.directory?(path)
             Find.find(path) do |path|
