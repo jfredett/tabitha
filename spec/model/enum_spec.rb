@@ -55,4 +55,24 @@ RSpec.describe Tabitha::Model::Struct do
     variants: Set.new, 
     generics: {}
   }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :Simple,
+    visibility: nil,
+    location: { line: 0, column: 5 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantA,
+        fields: {},
+        location: enum_loc(1, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantB,
+        fields: {},
+        location: enum_loc(2, 4),
+      ),
+    ],
+    generics: {}
+  }
 end
+

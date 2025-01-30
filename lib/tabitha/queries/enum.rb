@@ -44,15 +44,25 @@ module Tabitha
             # FIXME: There should only ever be one of these, but I suppose I should assert that
             matches.map { |v| v['enum.vis'] }.compact.map { |v| v.text.to_sym }.first
           end
-          # This is a partial construction, I'm, for instance, not yet grabbing variant names/fields, that's below.
+
+          variants = matches.map { |v| v['enum.variant.name'] }.compact.map { |v| [v, v.text.to_sym] }.map do |variant_node, variant_name|
+            variant = Tabitha::Model::Enum::Variant.new(name: variant_name, location: Engine::Location::from(src: src, node: variant_node), fields: {})
+
+            matches.select { |v| v['enum.variant.name'].text.to_sym == variant_name and v.has_key?('enum.variant.field.name') }.map do |field|
+              binding.pry
+            end
+
+            variant
+          end
+          variants = Set[*variants]
+
           enum = Model::Enum.create!(
             name: name,
             visibility: visibility,
             location: location,
-              # FIXME: Incomplete, Just variant names, no params
-            variants: Set[*matches.map { |v| v['enum.variant.name'] }.compact.map { |v| v.text.to_sym }], 
+            variants: variants,
               # FIXME: Just generic names, no bounds, but shoved into a hash
-            generics: matches.map { |v| v['enum.type_params.type'] }.compact.map { |v| v.text.to_sym }.map.with_object({}) { |v, h| h[v] = nil }  
+            generics: matches.map { |v| v['enum.type_params.type'] }.compact.map { |v| v.text.to_sym }.map.with_object({}) { |v, h| h[v] = nil }
           )
         end
       end

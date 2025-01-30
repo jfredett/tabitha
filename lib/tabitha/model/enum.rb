@@ -26,6 +26,20 @@ module Tabitha
         def named_field_variant?
           !@fields.empty? && @fields.all? { |field| !field.is_ordered_field? }
         end
+
+        def ==(other)
+          return false unless other.is_a?(Variant)
+          @name == other.name && @fields == other.fields
+        end
+
+        def eql?(other)
+          self == other
+        end
+
+        def hash
+          @name.hash ^ @fields.hash
+        end
+
       end
 
       attr_reader :name, :location, :variants, :generics, :visibility # :impls
