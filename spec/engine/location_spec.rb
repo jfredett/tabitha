@@ -22,6 +22,14 @@ RSpec.describe Tabitha::Engine::Location do
     it { is_expected.to have_column }
   end
 
+  describe "#inspect(short: true)" do
+    subject { described_class.new(file: "file", line: 1, column: 1) }
+
+    its(:inspect) { is_expected.to match(/file:1:1 \(\d+\)/) }
+    it { expect(subject.inspect(short: true)).to eq "1:1" }
+  end
+
+
   describe "partially specified" do
     subject { described_class.new(file: "file", line: 1) }
 

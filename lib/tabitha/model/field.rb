@@ -32,14 +32,14 @@ module Tabitha
         @visibility.eql?(other.visibility) && @name.to_sym.eql?(other.name.to_sym) && @type.to_sym.eql?(other.type.to_sym) && @location.eql?(other.location)
       end
 
-      def to_uml
+      def to_uml(short_location: false)
         vis = "#{@visibility} " unless @visibility.nil?
         "#{vis}#{name} : #{@type}"
       end
 
       def inspect
-        vis = "#{@vis} " unless @vis.nil?
-        "##{vis}#{name} : #{@type}"
+        vis = "#{@visibility} " unless @visibility.nil?
+        "##{vis}#{name} : #{@type} (#{location.inspect(short: true)})"
       end
     end
   end

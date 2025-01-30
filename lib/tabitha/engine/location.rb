@@ -51,8 +51,12 @@ module Tabitha
       end
 
       alias to_s inspect
-      def inspect
-        "#{@file}:#{@line}:#{@column} (#{object_id})"
+      def inspect(short: false)
+        if short
+          "#{@line}:#{@column}"
+        else
+          "#{@file}:#{@line}:#{@column} (#{object_id})"
+        end
       end
     end
   end

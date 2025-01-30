@@ -52,7 +52,7 @@ RSpec.describe Tabitha::Model::Struct do
     name: :WeirdEmptyEnum,
     visibility: :pub,
     location: { line: 20, column: 9 },
-    variants: Set.new, 
+    variants: Set.new,
     generics: {}
   }
 
@@ -63,13 +63,54 @@ RSpec.describe Tabitha::Model::Struct do
     variants: Set[
       Tabitha::Model::Enum::Variant::new(
         name: :VariantA,
-        fields: {},
+        fields: Set.new,
         location: enum_loc(1, 4),
       ),
       Tabitha::Model::Enum::Variant::new(
         name: :VariantB,
-        fields: {},
+        fields: Set.new,
         location: enum_loc(2, 4),
+      )
+    ],
+    generics: {}
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :WithVariantArg,
+    visibility: nil,
+    location: { line: 5, column: 5 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantArgA,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :"0",
+            type: :isize,
+            location: enum_loc(6, 16),
+          ),
+        ],
+        location: enum_loc(6, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantArgB,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :"0",
+            type: :usize,
+            location: enum_loc(7, 16),
+          ),
+          Tabitha::Model::Field::new(
+            name: :"1",
+            type: :bool,
+            location: enum_loc(7, 23),
+          ),
+        ],
+        location: enum_loc(7, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantNoArg,
+        fields: Set.new,
+        location: enum_loc(8, 4),
       ),
     ],
     generics: {}
