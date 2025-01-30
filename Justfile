@@ -6,8 +6,12 @@ ci:
     bundle install
     bundle exec rspec spec/
 
-cloc *args:
-  cloc --vcs=git --exclude-ext=.rc . {{args}}
+cloc *ARGS:
+  cloc --vcs=git --exclude-ext=.rc lib {{ARGS}}
+
+cloc-test *ARGS:
+  cloc --vcs=git --exclude-ext=.rc spec {{ARGS}}
+    
 
 taghunt:
     @just _taghunt "BUG" "FIXME" "HACK" "NOTE" "TODO" "OQ"
