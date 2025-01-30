@@ -32,7 +32,6 @@ module Tabitha
 
       attr_reader :name, :location, :variants, :generics, :visibility # :impls
 
-
       # FIXME: most of this is a cut-paste from Struct, probably worth extracting a module
       
       def self.parse!(path, source)
@@ -47,13 +46,14 @@ module Tabitha
         @registry[name.to_sym] if @registry&.key?(name.to_sym)
       end
 
-      def self.create!(visibility: nil, name: nil, variants: {}, generics: {}, location: nil)
+      def self.create!(visibility: nil, name: nil, variants: Set.new, generics: Set.new, location: nil)
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
         @registry[name.to_sym] = new(visibility: visibility, name: name.to_sym, variants: variants, generics: generics, location: location)
+        @registry[name.to_sym]
       end
 
-      def initialize(visibility: nil, name: nil, variants: Set.new, generics: {}, location: nil)
+      def initialize(visibility: nil, name: nil, variants: Set.new, generics: Set.new, location: nil)
         @visibility = visibility; @name = name; @location = location; @generics = generics; @variants = variants
       end
 

@@ -16,7 +16,13 @@ module Tabitha
         end
       end
 
+      def <<(bound)
+        @bounds << bound
+        self
+      end
+
       def ==(other)
+        return false unless other.is_a?(Generic)
         @name.to_sym == other.name.to_sym && @bounds == other.bounds && @location == other.location
       end
 
@@ -25,6 +31,7 @@ module Tabitha
       end
 
       def eql?(other)
+        return false unless other.is_a?(Generic)
         @name.eql?(other.name) && @bounds.eql?(other.bounds) && @location.eql?(other.location)
       end
 

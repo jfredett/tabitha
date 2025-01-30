@@ -13,20 +13,17 @@ module Tabitha
         Model::Bound.new(bound: node.text.to_sym, location: location)
       end
 
-      # OQ: I used to compare parents here as well, I don't think that's necessary? It may be that this should include
-      # it, and hash should not. I only use the `parent` for the `name` sort, and probably that could be removed. It
-      # would be nice if these were data classes that weren't necessarily aware of where they are in the tree. Not sure
-      # how I want this to work just yet.
       def ==(other)
         @bound == other.bound && @location == other.location
       end
 
-      def hash
-        [ @bound, @location ].hash
+      def eql?(other)
+        return false unless other.is_a?(Bound)
+        @bound.eql?(other.bound) && @location.eql?(other.location)
       end
 
-      def eql?(other)
-        @bound.eql?(other.bound) && @location.eql?(other.location)
+      def hash
+        [ @bound, @location ].hash
       end
 
       # As span always shows all it's bounds, if those are generically parameterized, we want to print the whole

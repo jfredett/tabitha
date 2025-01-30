@@ -35,7 +35,7 @@ RSpec.shared_examples "it captures the enum's definition" do |hash|
   end
 end
 
-RSpec.describe Tabitha::Model::Struct do
+RSpec.describe Tabitha::Model::Enum do
   before(:all) do
     Tabitha::Engine::Query.load!
   end
@@ -53,7 +53,7 @@ RSpec.describe Tabitha::Model::Struct do
     visibility: :pub,
     location: { line: 20, column: 9 },
     variants: Set.new,
-    generics: {}
+    generics: Set.new
   }
 
   it_behaves_like "it captures the enum's definition", {
@@ -72,7 +72,7 @@ RSpec.describe Tabitha::Model::Struct do
         location: enum_loc(2, 4),
       )
     ],
-    generics: {}
+    generics: Set.new
   }
 
   it_behaves_like "it captures the enum's definition", {
@@ -113,7 +113,172 @@ RSpec.describe Tabitha::Model::Struct do
         location: enum_loc(8, 4),
       ),
     ],
-    generics: {}
+    generics: Set.new
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :WithNamedArgs,
+    visibility: :pub,
+    location: { line: 11, column: 9 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantArgA,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :field1,
+            type: :isize,
+            location: enum_loc(12, 18),
+          ),
+        ],
+        location: enum_loc(12, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :VariantArgB,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :field1,
+            type: :usize,
+            location: enum_loc(13, 18),
+          ),
+          Tabitha::Model::Field::new(
+            name: :field2,
+            type: :bool,
+            location: enum_loc(13, 33),
+          ),
+        ],
+        location: enum_loc(13, 4),
+      )
+    ],
+    generics: Set.new
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :GenericEnum,
+    visibility: nil,
+    location: { line: 24, column: 5 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :Variant,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :"0",
+            type: :T,
+            location: enum_loc(25, 12),
+          ),
+        ],
+        location: enum_loc(25, 4),
+      )
+    ],
+    generics: Set[
+      Tabitha::Model::Generic::new(
+        name: :T,
+        bounds: Set.new,
+        location: enum_loc(24, 17),
+      )
+    ]
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :GenericBoundedEnum,
+    visibility: :pub,
+    location: { line: 28, column: 9 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :Variant,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :"0",
+            type: :T,
+            location: enum_loc(29, 12),
+          ),
+        ],
+        location: enum_loc(29, 4),
+      )
+    ],
+    generics: Set[
+      Tabitha::Model::Generic::new(
+        name: :T,
+        bounds: Set[
+          Tabitha::Model::Bound::new(
+            bound: :Copy,
+            location: enum_loc(28, 32),
+          ),
+        ],
+        location: enum_loc(28, 28),
+      )
+    ]
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :GenericWhereBoundedEnum,
+    visibility: :pub,
+    location: { line: 32, column: 9 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :Variant,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :"0",
+            type: :T,
+            location: enum_loc(33, 12),
+          ),
+        ],
+        location: enum_loc(33, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :None,
+        fields: Set.new,
+        location: enum_loc(34, 4),
+      )
+    ],
+    generics: Set[
+      Tabitha::Model::Generic::new(
+        name: :T,
+        bounds: Set[
+          Tabitha::Model::Bound::new(
+            bound: :Copy,
+            location: enum_loc(32, 46),
+          ),
+        ],
+        location: enum_loc(32, 42),
+      )
+    ]
+  }
+
+  it_behaves_like "it captures the enum's definition", {
+    name: :GenericBoundedEnumWithNamedField,
+    visibility: :pub,
+    location: { line: 37, column: 9 },
+    variants: Set[
+      Tabitha::Model::Enum::Variant::new(
+        name: :Variant,
+        fields: Set[
+          Tabitha::Model::Field::new(
+            name: :field1,
+            type: :T,
+            location: enum_loc(38, 14),
+          ),
+        ],
+        location: enum_loc(38, 4),
+      ),
+      Tabitha::Model::Enum::Variant::new(
+        name: :None,
+        fields: Set.new,
+        location: enum_loc(39, 4),
+      )
+    ],
+    generics: Set[
+      Tabitha::Model::Generic::new(
+        name: :T,
+        bounds: Set[
+          Tabitha::Model::Bound::new(
+            bound: :Copy,
+            location: enum_loc(37, 46),
+          ),
+        ],
+        location: enum_loc(37, 42),
+      )
+    ]
   }
 end
 

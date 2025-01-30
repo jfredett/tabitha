@@ -22,7 +22,7 @@ pub enum WeirdEmptyEnum {
 
 }
 
-pub enum GenericEnum<T> {
+enum GenericEnum<T> {
     Variant(T)
 }
 
