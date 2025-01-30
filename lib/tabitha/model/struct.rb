@@ -16,13 +16,13 @@ module Tabitha
         @registry[name.to_sym] if @registry&.key?(name.to_sym)
       end
 
-      def self.create!(visibility: nil, name: nil, generics: {}, fields: {}, location: nil)
+      def self.create!(visibility: nil, name: nil, generics: Set.new, fields: Set.new, location: nil)
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
         @registry[name.to_sym] = new(visibility: visibility, name: name.to_sym, generics: generics, location: location, fields: fields)
       end
 
-      def initialize(visibility: nil, name: nil, location: nil, generics: {}, fields: {})
+      def initialize(visibility: nil, name: nil, location: nil, generics: Set.new, fields: Set.new)
         @visibility = visibility; @name = name; @location = location; @generics = generics; @fields = fields
       end
 
@@ -80,14 +80,13 @@ module Tabitha
       def generic_span(with_bounds: false)
         return unless self.generics?
 
-        generics.values
-                .sort_by(&:name)
+        generics.sort_by(&:name)
                 .map { |v| v.as_span(with_bounds: with_bounds) }
                 .join(', ')
       end
 
       def field_span
-        @fields.values.map { |f| f.to_uml }.join("\n  ") unless self.zst?
+        @fields.map { |f| f.to_uml }.join("\n  ") unless self.zst?
       end
 
       def generics?

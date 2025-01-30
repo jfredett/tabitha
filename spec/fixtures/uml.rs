@@ -10,8 +10,25 @@ struct Example<T : Copy + PartialEq> {
     private_field: Vec<usize>
 }
 
-impl Example<String> {
+enum Enumeration {
+    Remuneration,
+    Veneration,
+    Mitigation,
+    Altercation,
+    Botheration(String)
+}
 
+impl Enumeration {
+    pub fn botheration(s : &str) -> Enumeration {
+        Enumeration::Botheration(s.to_string())
+    }
+
+    pub fn example(ex: Example<String>) -> Enumeration {
+        Enumeration::Botheration(ex.pub_field)
+    }
+}
+
+impl Example<String> {
     pub fn go(&self) -> bool {
         true
     }
@@ -41,3 +58,4 @@ impl<T : Copy + PartialEq + Default> Default for Example<T> {
         }
     }
 }
+

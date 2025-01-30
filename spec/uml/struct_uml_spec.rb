@@ -31,6 +31,10 @@ RSpec.describe "Tabitha::Model::Struct#to_uml" do
       pub fn fax_spam(&self, ch: Channel)
     }
 
+    enum Enumeration {
+      # TODO: All this stuff
+    }
+
     class Gen_Example_T as T <<G, green>> {
       ./spec/fixtures/uml.rs:8
       .. bounds ..

@@ -8,19 +8,19 @@ module Tabitha
             (visibility_modifier)? @struct.visibility
             name: (type_identifier) @struct.name
             type_parameters: (type_parameters
-                               [ (type_identifier) @generic.type
-                                 (constrained_type_parameter
-                                    left: (type_identifier) @generic.type
-                                    bounds: (trait_bounds (_) @generic.bound))])?
+              [ (type_identifier) @struct.type_params.type
+                (constrained_type_parameter
+                  left: (type_identifier) @struct.type_params.type
+                  bounds: (trait_bounds (_) @struct.type_params.bound))])?
             (where_clause
               (where_predicate
-                left: [(type_identifier) (generic_type)] @generic.type
-                bounds: (trait_bounds (_) @generic.bound)))?
+                left: [(type_identifier) (generic_type)] @struct.type_params.type
+                bounds: (trait_bounds (_) @struct.type_params.bound)))?
             body: (field_declaration_list
-                    (field_declaration
-                      (visibility_modifier)? @field.visibility
-                      name: (field_identifier) @field.name
-                      type: (_) @field.type))?
+              (field_declaration
+                (visibility_modifier)? @struct.field.visibility
+                name: (field_identifier) @struct.field.name
+                type: (_) @struct.field.type))?
           )
         QUERY
       end
@@ -29,65 +29,58 @@ module Tabitha
         super.group_by do |result|
           result['struct.name'].text.to_sym
         end.map do |name, matches|
-            struct_node = matches[0]['struct.name']
-            name = struct_node.text.to_sym
+            node = matches.first['struct.name']
+            name = node.text.to_sym
 
             location = Engine::Location::from(
               src: src,
-              node: struct_node
+              node: node
             )
 
-
-            # TODO: Build the struct instead of the hash
+            # TODO: This is _very_ similar to the enum query (by design), and I suspect we can push some of this parsing
+            # into the relevant model classes themselves?
             # TODO: Pretty sure this can be built outside the loop, harmless here though I think.
-            struct_vis = matches[0]['struct.visibility'].text.to_sym if matches[0].has_key?('struct.visibility')
-            struct = Model::Struct[name] || Model::Struct.create!(visibility: struct_vis, name: name, location: location)
-
-            components = Hash.new { |h, k| h[k] = {} }
-            matches.map do |match|
-              # `matches` current form [[generic.type, generic.bound, field.vis?, field.name, field.type], [repeat]...]
-              # desired form {
-              #   generic: [{type: type, bound: bound}, ...],
-              #   fields: [{vis: vis, name: name, type: type}, ...]}
-              # }
-
-              # TODO: Push this into Generic?
-              if match.has_key?('generic.type')
-                type = match.delete('generic.type').text.to_sym
-
-                generic = components[:generic][type] || Model::Generic::new(name: type, location: location)
-
-                if match.has_key?('generic.bound')
-                  node = match['generic.bound']
-                  generic.bounds << Model::Bound.from(
-                    node: node,
-                    # TODO: can I recover src from node? If so, can drop this org.
-                    src: src,
-                  )
-                end
-                components[:generic][type] = generic
-              end
-
-              # TODO: Push this into Field?
-              if match.has_key?('field.name')
-                name_node = match.delete('field.name')
-                name = name_node.text.to_sym
-                type = match.delete('field.type').text.to_sym
-                vis = match.delete('field.visibility').text if match.has_key?('field.visibility')
-
-                components[:field][name] ||= Model::Field.new(
-                  name: name,
-                  type: type,
-                  visibility: vis,
-                  location: Engine::Location::from(src: src, node: name_node),
-                )
-              end
+            visibility = if matches.any? { |v| not v['struct.visibility'].nil? }
+              matches.map { |v| v['struct.visibility'] }.compact.map { |v| v.text.to_sym }.first
             end
 
-            struct.generics = components[:generic]
-            struct.fields = components[:field]
+            generics = matches.map { |v| v['struct.type_params.type'] }.compact.map { |g| [g, g.text.to_sym] }
+            generics = generics.map do |generic_node, generic_name|
+              generic = Tabitha::Model::Generic.new(name: generic_name, location: Engine::Location.from(src: src, node: generic_node))
 
-            struct
+              matches.select do |v|
+                v['struct.type_params.type'].text.to_sym == generic_name && v.has_key?('struct.type_params.bound')
+              end.each do |bound|
+                generic << Tabitha::Model::Bound.from(src: src, node: bound['struct.type_params.bound'])
+              end
+
+              generic
+            end
+            generics = Set[*generics]
+
+            fields = matches.map { |v| v['struct.field.name'] }.compact.map { |f| [f, f.text.to_sym] }
+            fields = fields.map do |field_node, field_name|
+              field_vis = matches.select { |v| v['struct.field.name'].text.to_sym == field_name }.map { |v| v['struct.field.visibility'] }.compact.map { |v| v.text.to_sym }.first
+              type = matches.select { |v| v['struct.field.name'].text.to_sym == field_name }.map { |v| v['struct.field.type'] }.compact.map { |v| v.text.to_sym }.first
+              field = Tabitha::Model::Field.new(
+                name: field_name,
+                type: type,
+                visibility: field_vis,
+                location: Engine::Location.from(src: src, node: field_node),
+              )
+
+              field
+            end
+            fields = Set[*fields]
+
+            Model::Struct.create!(
+              visibility: visibility,
+              name: name,
+              location: location,
+              generics: generics,
+              fields: fields
+            )
+
           end
       end
     end
