@@ -56,13 +56,13 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: :pub,
         name: :field1,
         type: :u32,
-        location: scratch_loc(17, 8),
+        location: struct_loc(17, 8),
       ),
       field2: Tabitha::Model::Field::new(
         visibility: nil,
         name: :field2,
         type: :i32,
-        location: scratch_loc(18, 4),
+        location: struct_loc(18, 4),
       ),
     },
     generics: {}
@@ -93,7 +93,7 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: :pub,
         name: :field1,
         type: :Inner,
-        location: scratch_loc(55, 8),
+        location: struct_loc(55, 8),
       ),
     },
     generics: {}
@@ -108,19 +108,19 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: :pub,
         name: :field1,
         type: :T,
-        location: scratch_loc(25, 8),
+        location: struct_loc(25, 8),
       ),
       field2: Tabitha::Model::Field::new(
         visibility: nil,
         name: :field2,
         type: :i32,
-        location: scratch_loc(26, 4),
+        location: struct_loc(26, 4),
       ),
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(24, 7),
+        location: struct_loc(24, 7),
       )
     }
   }
@@ -134,23 +134,23 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: :pub,
         name: :field1,
         type: :T,
-        location: scratch_loc(30, 8),
+        location: struct_loc(30, 8),
       ),
       field2: Tabitha::Model::Field::new(
         visibility: nil,
         name: :field2,
         type: :U,
-        location: scratch_loc(31, 4),
+        location: struct_loc(31, 4),
       ),
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(29, 11),
+        location: struct_loc(29, 11),
       ),
       U: Tabitha::Model::Generic::new(
         name: :U,
-        location: scratch_loc(29, 11),
+        location: struct_loc(29, 11),
       )
     }
   }
@@ -164,16 +164,16 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(35, 4),
+        location: struct_loc(35, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(34, 7),
+        location: struct_loc(34, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Copy,
-          location: scratch_loc(34, 39),
+          location: struct_loc(34, 39),
         )]
       )
     }
@@ -188,16 +188,16 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(39, 4),
+        location: struct_loc(39, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(38, 11),
+        location: struct_loc(38, 11),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Copy,
-          location: scratch_loc(38, 30),
+          location: struct_loc(38, 30),
         )]
       )
     }
@@ -212,30 +212,30 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(43, 4),
+        location: struct_loc(43, 4),
       ),
       field2: Tabitha::Model::Field::new(
         visibility: nil,
         name: :field2,
         type: :U,
-        location: scratch_loc(44, 4),
+        location: struct_loc(44, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(42, 7),
+        location: struct_loc(42, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Copy,
-          location: scratch_loc(42, 34),
+          location: struct_loc(42, 34),
         )]
       ),
       U: Tabitha::Model::Generic::new(
         name: :U,
-        location: scratch_loc(42, 7),
+        location: struct_loc(42, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Clone,
-          location: scratch_loc(42, 44),
+          location: struct_loc(42, 44),
         )]
       )
     }
@@ -250,30 +250,30 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(12, 4),
+        location: struct_loc(12, 4),
       ),
       field2: Tabitha::Model::Field::new(
         visibility: nil,
         name: :field2,
         type: :U,
-        location: scratch_loc(13, 4),
+        location: struct_loc(13, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(8, 7),
+        location: struct_loc(8, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Copy,
-          location: scratch_loc(9, 7),
+          location: struct_loc(9, 7),
         )]
       ),
       U: Tabitha::Model::Generic::new(
         name: :U,
-        location: scratch_loc(8, 7),
+        location: struct_loc(8, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Clone,
-          location: scratch_loc(10, 7),
+          location: struct_loc(10, 7),
         )]
       )
     }
@@ -288,21 +288,21 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(5, 4),
+        location: struct_loc(5, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(4, 7),
+        location: struct_loc(4, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :"Foo<U>", # FIXME: This is not the _ideal_ form of this, I'd prefer if there was some parsing of this bound, but it's not _necessary_ right now, so I'm accepting it against my perfectionism's protest.
-          location: scratch_loc(4, 23),
+          location: struct_loc(4, 23),
         )]
       ),
       U: Tabitha::Model::Generic::new(
         name: :U,
-        location: scratch_loc(4, 7),
+        location: struct_loc(4, 7),
       )
     }
   }
@@ -316,24 +316,24 @@ RSpec.describe Tabitha::Model::Struct do
         visibility: nil,
         name: :field1,
         type: :T,
-        location: scratch_loc(1, 4),
+        location: struct_loc(1, 4),
       )
     },
     generics: {
       T: Tabitha::Model::Generic::new(
         name: :T,
-        location: scratch_loc(0, 7),
+        location: struct_loc(0, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :"Foo<U>",
-          location: scratch_loc(0, 39),
+          location: struct_loc(0, 39),
         )]
       ),
       U: Tabitha::Model::Generic::new(
         name: :U,
-        location: scratch_loc(0, 7),
+        location: struct_loc(0, 7),
         bounds: Set[Tabitha::Model::Bound::new(
           bound: :Bar,
-          location: scratch_loc(0, 51),
+          location: struct_loc(0, 51),
         )]
       )
     }

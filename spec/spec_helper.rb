@@ -34,7 +34,16 @@ def loc(line, col, file: nil)
 end
 
 def scratch_loc(line, col)
+  STDERR.puts "DEPRECATED, use #struct_loc instead\n -> #{caller[0]}"
+  struct_loc(line, col)
+end
+
+def struct_loc(line, col)
   loc(line, col, file: fixture("struct.rs"))
+end
+
+def enum_loc(line, col)
+  loc(line, col, file: fixture("enum.rs"))
 end
 
 FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))

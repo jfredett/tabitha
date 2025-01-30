@@ -26,12 +26,7 @@ module Tabitha
       end
 
       def run!(src = nil)
-        structs = []
-        results = super
-
-
-
-        results.group_by do |result|
+        super.group_by do |result|
           result['struct.name'].text.to_sym
         end.map do |name, matches|
             struct_node = matches[0]['struct.name']
