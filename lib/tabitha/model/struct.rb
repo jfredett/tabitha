@@ -20,6 +20,7 @@ module Tabitha
         return @registry[name] if @registry&.key?(name)
         @registry ||= {}
         @registry[name.to_sym] = new(visibility: visibility, name: name.to_sym, generics: generics, location: location, fields: fields)
+        @registry[name.to_sym]
       end
 
       def initialize(visibility: nil, name: nil, location: nil, generics: Set.new, fields: Set.new)

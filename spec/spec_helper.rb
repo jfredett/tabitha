@@ -46,6 +46,10 @@ def enum_loc(line, col)
   loc(line, col, file: fixture("enum.rs"))
 end
 
+def trait_loc(line, col)
+  loc(line, col, file: fixture("trait.rs"))
+end
+
 FIXTURES_PATH = File.expand_path(File.join(__dir__, "fixtures"))
 
 def fixture(*path)

@@ -80,7 +80,6 @@ module Tabitha
               generics: generics,
               fields: fields
             )
-
           end
       end
     end
