@@ -2,26 +2,14 @@ module Tabitha
   module Model
     class Struct
       attr_accessor :visibility, :name, :fields, :location, :generics
+      alias primary_key name
 
       # TODO: have this take a path location, and use kwargs
       def self.parse!(path, source)
         Tabitha::Engine::Query[:Struct].on(source).run!(path)
       end
 
-      def self.clear!
-        @registry = {}
-      end
-
-      def self.[](name)
-        @registry[name.to_sym] if @registry&.key?(name.to_sym)
-      end
-
-      def self.create!(visibility: nil, name: nil, generics: Set.new, fields: Set.new, location: nil)
-        return @registry[name] if @registry&.key?(name)
-        @registry ||= {}
-        @registry[name.to_sym] = new(visibility: visibility, name: name.to_sym, generics: generics, location: location, fields: fields)
-        @registry[name.to_sym]
-      end
+      extend Tabitha::Util::Registry
 
       def initialize(visibility: nil, name: nil, location: nil, generics: Set.new, fields: Set.new)
         @visibility = visibility; @name = name; @location = location; @generics = generics; @fields = fields
