@@ -14,9 +14,7 @@ RSpec.describe Tabitha::Util::Registry do
         @args = args
       end
 
-      def primary_key
-        keyword
-      end
+      alias primary_key keyword
     end
   end
 
