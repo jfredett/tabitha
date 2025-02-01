@@ -35,7 +35,7 @@ module Tabitha
     #   th.constrain! do |left|
     #     self.each do |right|
     #       # This _will not_ do the distinctness filtering for you, so you must do it yourself.
-    #       # self will be the actual thetical class, so you can just do internal iteration. Again, you're responsible
+    #       # self will be the underlying set instance, so you can just do internal iteration. Again, you're responsible
     #       # for your own performance here, you can make this a very slow object without even trying.
     #     end
     #   end
@@ -78,27 +78,84 @@ module Tabitha
           @set.respond_to?(name) || super
         end
 
+        include Enumerable
+        extend Forwardable
+
+        def_delegators :@set, :each, :empty?, :size, :include?, :to_a
+
+        # yields all distinct pairs of items in the set, will admit both orderings of a pair. e.g., [a, b] and [b, a].
+        # I'd say this is because of not wanting to assume your constraint is commutative, but I'm actually just lazy.
+        def distinct_pairs(&block)
+          @set.map do |left|
+            @set.map do |right|
+              next if left == right
+              [left, right]
+            end
+          end.flatten(1).compact.each(&block)
+        end
+
+        # true if all distinct pairs satisfy the block
+        def all_distinct_pairs?(&block)
+          distinct_pairs.all?(&block)
+        end
+
+        # true if any distinct pair satisfies the block
+        def any_distinct_pair?(&block)
+          distinct_pairs.any?(&block)
+        end
+
         def method_missing(name, *args, &block)
-          return if @set.nil?
-          return unless @set.respond_to?(name)
+          @set.send(name, *args, &block)
 
-          @set.send(name, *args, &block).tap do
-            # TODO: This is probably an `any?` call?
-            # TODO: Combine to a single pass
-            self.class.hooks[:"__global__"].each do |hook|
-              raise "Constraint failed." if hook.(@set)
+          self.class.hooks.each do |hook|
+            next unless hook.applies_to?(name)
+            if hook.mode == :reject
+              raise "Constraint: `#{hook.name}` failed." if hook.call(self)
+            else
+              raise "Constraint: `#{hook.name}` failed." unless hook.call(self)
             end
+          end
+        end
 
-            self.class.hooks[name].each do |hook|
-              raise "Constraint failed." if hook.(@set)
+        class Constraint
+          attr_reader :name, :methods, :mode
+
+          def initialize(name: nil, methods: [], mode: :reject, &block)
+            @name = name
+            @methods = methods
+            @mode = mode
+            @block = block
+          end
+
+          extend Forwardable
+
+          def_delegators :@block, :arity
+
+          def call(thetical)
+            case arity
+            when 0
+              thetical.instance_exec(&@block)
+            when 1
+              thetical.all? { |item| thetical.instance_exec(item, &@block) }
+            when 2
+              thetical.all_distinct_pairs? { |left, right| thetical.instance_exec(left, right, &@block) }
+            else
+              raise "Invalid arity (#{arity}) for constraint block."
             end
+          end
+
+          def describe(description)
+            @description = description
+          end
+
+          def applies_to?(method)
+            @methods.empty? || @methods.include?(method)
           end
         end
 
         class << self
           def hooks
-            @hooks ||= Hash.new { |h, k| h[k] = [] }
-            @hooks
+            @hooks ||= []
           end
 
           # #constrain! is a method that allows you to add a constraint to the thetical. This constraint will be checked
@@ -112,40 +169,24 @@ module Tabitha
           #
           # constraints are default-reject (and #reject! is an alias for #constrain!). You can invert that logic with
           # the #accept! method.
-          def constrain!(*args, &block)
-            thunk = case block.arity
-            when 0
-              ->(set) { set.instance_exec(&block) }
-            when 1
-              ->(set) { set.all? { |item| self.instance_exec(item, &block) } }
-            when 2
-              ->(set) { set.all? { |left| set.all? { |right| self.instance_exec(left, right, &block) if left != right } } }
-            else
-              raise "Invalid arity (#{block.arity}) for constraint block."
-            end
+          #
+          # This method should generally not be used directly, use `#reject!` or `#accept!` instead.
+          def constrain!(methods:, name:, mode:,  &block)
+            thunk = Constraint.new(methods: methods, name: name, mode: mode, &block)
 
-            if args.empty?
-              self.hooks[:"__global__"] << thunk
-            else
-              args.each { |arg| self.hooks[arg] << thunk }
-            end
+            self.hooks << thunk
+
+            thunk
           end
 
-          alias reject! constrain!
+          def reject!(methods: [], name: nil, &block)
+            constrain!(methods: methods, name: name, mode: :reject,  &block)
+          end
 
           # #constrain! and #reject! are methods to reject any passing items. This method is the opposite, it will
           # reject any items that satisfy the predicate provided.
-          def accept!(*args, &block)
-            new_block = ->(*args) { not block.(*args) }
-            # HACK: This is nearly sin, but not quite.
-            #
-            # I need to invert the logic of a reject hook, the easiest way to do that is to slap a `not` in front of the
-            # otherwise normal block. This, however, forces an arity count of -1, since the `*args` arity is `-1`, even
-            # though I'm not doing anything to change the arity of the block itself. Thus, I simply tell Ruby that, in
-            # fact, the arity of the new block is the same as the old... by blowing away it's implementation of the
-            # arity method entirely and replacing it with the arity of the original block.
-            new_block.define_singleton_method(:arity) { block.arity }
-            constrain!(*args, &new_block)
+          def accept!(methods: [], name: nil, &block)
+            constrain!(methods: methods, name: name, mode: :accept,  &block)
           end
         end
       end

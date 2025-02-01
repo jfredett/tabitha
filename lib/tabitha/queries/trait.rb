@@ -24,6 +24,22 @@ module Tabitha
             node = matches.first['trait.name']
             name = node.text.to_sym
 
+            # TODO: A small discovery. You can query a node inside of another. Which means
+            # these queries can capture, e.g., a whole function item and hand it off
+            # to a 'sub' parser, rather than deeply searching the tree.
+            #
+            # This could be scoped to each treesitter node directly, so a `struct_item`
+            # gets handed to struct, which in turns hands off to field or generic or w/e
+            #
+            # I think this refactor comes as part of trait impl. I also think I'm going to
+            # need a 'constrained set' type. which allows some dynamic constraint placed 
+            # on the set. It should be ordered by default, but practically it should disregard
+            # order as part of equality. It's essentially a wrapper Set.new((id, T)), where
+            # equality ignores id differences. An additional constraint may be that `T#foo` returns a unique result, or
+            # w/e.
+            #
+            # This models Params, and Generics too - we need to preserve idiosyncratic ordering.
+
             location = Engine::Location::from(
               src: src,
               node: node
