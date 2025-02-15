@@ -2,7 +2,14 @@
     description = "Tabitha, a tree-sitter based Rust Code Exploration and Diagramming Tool";
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-        devenv.url = "github:cachix/devenv";
+        # BUG: Devenv captures all code in a repo and ships it to an external server owned by Devenv.
+        # Even if you opt out, it still sends the code, but just marks it not to be used for 'telemetry'.
+        # This is so profoundly stupid it can only be malicious.
+        # This commit is before the telemetry was added.
+        # see: https://github.com/cachix/devenv/blob/1235cd13f47df6ad19c8a183c6eabc1facb7c399/devenv/src/devenv.rs#L214
+        #
+        # Shame on you, Devenv guy. Shame.
+        devenv.url = "github:cachix/devenv?ref=e646420";
     };
 
     outputs = { self, nixpkgs, devenv, flake-utils } @ inputs: let
