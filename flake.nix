@@ -2,102 +2,86 @@
     description = "Tabitha, a tree-sitter based Rust Code Exploration and Diagramming Tool";
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-        devenv.url = "github:cachix/devenv";
+        devshell.url = "github:numtide/devshell";
+        flake-parts.url = "github:hercules-ci/flake-parts";
     };
 
-    outputs = { self, nixpkgs, devenv, flake-utils } @ inputs: let
-        system = "x86_64-linux";
-        pkgs = import nixpkgs { inherit system; };
-    in {
-        packages.${system} = {
-            devenv-up = self.devShells.${system}.default.config.procfileScript;
-            ci = pkgs.writeShellApplication {
-                name = "ci";
+    outputs = { self, nixpkgs, devshell, flake-parts } @ inputs:
 
-                runtimeInputs = with pkgs; [ 
-                    ruby_3_4
-                    just
-                    bundler
-                ];
+        flake-parts.lib.mkFlake { inherit inputs; } {
+            imports = [
+                devshell.flakeModule
+            ];
 
-                text = /* bash */ ''
-                    if [ -d .parsers ]; then
-                        rm .parsers/*
-                    else
-                        mkdir -p .parsers
-                    fi
-                    ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
-                    ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
+            systems = [
+                "x86_64-linux"
+            ];
 
-                    just ci
-                '';
-            };
-        };
+            perSystem = { pkgs, system, ... }: {
+                packages.ci = pkgs.writeShellApplication {
+                    name = "ci";
 
-        devShells.${system}.default = devenv.lib.mkShell {
-            inherit inputs pkgs;
-            modules = [{
-                languages.ruby = {
-                    enable = true;
-                    bundler.enable = true;
-                    package = pkgs.ruby_3_4;
+                    runtimeInputs = with pkgs; [ 
+                        bundler
+                        gnuplot
+                        just
+                        plantuml
+                        ruby_3_4
+                    ];
+
+                    text = /* bash */ ''
+                        if [ -d .parsers ]; then
+                            rm .parsers/*
+                        else
+                            mkdir -p .parsers
+                        fi
+
+                        ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
+                        ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
+
+                        just ci
+                    '';
                 };
 
-                enterShell = /* bash */ ''
-                    if [ -d .parsers ]; then
-                        rm .parsers/*
-                    else
-                        mkdir -p .parsers
-                    fi
-                    ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
-                    ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
-                '';
 
-                packages = with pkgs; [
-                    cloc
-                    gnuplot
-                    plantuml
-                    just
-                ];
-            }];
+                devshells.default = let
+                    ruby-env = pkgs.bundlerEnv {
+                        name = "tabitha";
+                        gemdir = ./.;
+                        ruby = pkgs.ruby_3_4;
+                        inherit (pkgs) bundler;
+                    };
+                    updateDeps = pkgs.writeScriptBin "update-deps" (builtins.readFile (pkgs.substituteAll {
+                        src = ./scripts/update.sh;
+                        bundix = "${pkgs.bundix}/bin/bundix";
+                        bundler = "${ruby-env.bundler}/bin/bundler";
+                    }));
+                in {
+                    motd = "Mischief? I ain't up to no mischief.";
+
+                    devshell.startup.get-parsers.text = /* bash */ ''
+                        if [ -d .parsers ]; then
+                            rm .parsers/*
+                        else
+                            mkdir -p .parsers
+                        fi
+
+                        ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
+                        ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
+                    '';
+
+                    packages = with pkgs; [
+                        curl
+                        cloc
+                        gnuplot
+                        just
+                        plantuml
+                        ruby-env
+                        ruby-env.wrappedRuby
+                        updateDeps
+                        tree-sitter-grammars.tree-sitter-rust
+                    ];
+                };
+            };
         };
-    };
 }
-    # outputs = { self, nixpkgs, devenv, ... } @ inputs: let
-    #     systems = [ "x86_64-linux" "i686-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-    #     forAllSystems = f: builtins.listToAttrs (map (name: { inherit name; value = f name; }) systems);
-    # in  forAllSystems (system: let
-    #         pkgs = import nixpkgs { inherit system; };
-    #     in {
-    #         packages.${system}.devenv-up = self.devShells.${system}.default.config.procfileScript;
-
-
-    #         devShells.${system}.default = devenv.lib.mkShell {
-    #             inherit inputs pkgs;
-
-    #             modules = [{
-    #                 languages.ruby = {
-    #                     enable = true;
-    #                     bundler.enable = true;
-    #                     package = pkgs.ruby_3_4;
-    #                 };
-
-    #                 enterShell = /* bash */ ''
-    #                     if [ -d .parsers ]; then
-    #                         rm .parsers/*
-    #                     else
-    #                         mkdir -p .parsers
-    #                     fi
-    #                     ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/parser" .parsers/rust.so
-    #                     ln -s "${pkgs.tree-sitter-grammars.tree-sitter-rust}/queries" .parsers/rust_queries
-    #                 '';
-
-    #                 packages = with pkgs; [
-    #                     cloc
-    #                     gnuplot
-    #                     plantuml
-    #                     just
-    #                 ];
-    #             }];
-    #         };
-    #     });
