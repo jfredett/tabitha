@@ -1,5 +1,9 @@
 module Tabitha
   module Engine
+    # FIXME: This class is doing two things, it should be doing one.
+    #
+    # Right now it is managing crawling the source tree and building up an index of it, and it's responsible for owning
+    # and managing the parser.
     class SourceTree
       class << self
         attr_reader :sources
