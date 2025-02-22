@@ -9,7 +9,7 @@
         # see: https://github.com/cachix/devenv/blob/1235cd13f47df6ad19c8a183c6eabc1facb7c399/devenv/src/devenv.rs#L214
         #
         # Shame on you, Devenv guy. Shame.
-        devenv.url = "github:cachix/devenv?ref=e646420";
+        devenv.url = "github:jfredett/devenv";
     };
 
     outputs = { self, nixpkgs, devenv, flake-utils } @ inputs: let
