@@ -1,4 +1,5 @@
 .parsers/
 .devenv/
+.data/
 .rspec_status
 coverage/
