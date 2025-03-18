@@ -10,7 +10,7 @@ gem "reline"
 
 group :test do
     gem 'rspec-its'
-    gem "rspec"
+    gem "rspec", "~> 3.0"
     gem 'simplecov', require: false
     gem 'simplecov-cobertura', require: false
     gem 'pry'

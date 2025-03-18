@@ -16,17 +16,22 @@
                 "x86_64-linux"
             ];
 
-            perSystem = { pkgs, system, ...}: {
+            perSystem = { pkgs, system, ...}: let
+                ci_deps = with pkgs; [
+                    just
+                    gcc
+                    gnumake
+                ];
+                dev_deps = with pkgs; ci_deps ++ [
+                    cloc
+                    gnuplot
+                    plantuml
+                ];
+            in {
                 packages.ci = pkgs.writeShellApplication {
                     name = "ci";
 
-                    runtimeInputs = with pkgs; [ 
-                        ruby_3_4
-                        just
-                        gcc
-                        gnumake
-                        bundler
-                    ];
+                    runtimeInputs = ci_deps;
 
                     text = /* bash */ ''
                         if [ -d .parsers ]; then
@@ -41,17 +46,14 @@
                     '';
                 };
 
-                devshells.default = {
+                devshells.default = {extraModulesPath, ...}@args: {
                     motd = "Mischief? I ain't up to no mischief.";
 
+                    imports = ["${extraModulesPath}/language/ruby.nix"];
 
-                    packages = with pkgs; [
-                        ruby_3_4
-                        cloc
-                        gnuplot
-                        plantuml
-                        just
-                    ];
+                    language.ruby.package = pkgs.ruby_3_4;
+
+                    packages = dev_deps;
 
                     commands = [
                         {

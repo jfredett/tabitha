@@ -53,7 +53,7 @@ module Tabitha
                   location: Engine::Location::new(file: src, line: 2, column: 5),
                   name: :get,
                   params: Set[
-                    Tabitha::Model::Fn::Param.new(
+                    Tabitha::Model::Param.new(
                       name: :"&self",
                       type: nil,
                       location: Engine::Location::new(file: src, line: 0, column: 0)

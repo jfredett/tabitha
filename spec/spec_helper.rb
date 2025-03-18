@@ -28,6 +28,8 @@ SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require "tabitha"
 
+# FIXME: These all kinda suck.
+
 # Helper method to create a location
 def loc(line, col, file: nil)
   Tabitha::Engine::Location.new(file: file, line: line, column: col)
@@ -44,6 +46,10 @@ end
 
 def enum_loc(line, col)
   loc(line, col, file: fixture("enum.rs"))
+end
+
+def fn_loc(line, col)
+  loc(line, col, file: fixture("fn.rs"))
 end
 
 def trait_loc(line, col)
